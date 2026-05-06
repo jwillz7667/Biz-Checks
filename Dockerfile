@@ -29,7 +29,6 @@ COPY packages/eslint-config/package.json ./packages/eslint-config/
 COPY packages/formula/package.json ./packages/formula/
 COPY packages/micr/package.json ./packages/micr/
 COPY packages/tsconfig/package.json ./packages/tsconfig/
-COPY packages/ui/package.json ./packages/ui/
 
 # `prepare` lifecycle script runs husky which expects .git — tolerated.
 RUN pnpm install --frozen-lockfile --prod=false
@@ -65,7 +64,6 @@ COPY --from=builder /app/packages/domain/package.json ./packages/domain/
 COPY --from=builder /app/packages/formula/package.json ./packages/formula/
 COPY --from=builder /app/packages/micr/package.json ./packages/micr/
 COPY --from=builder /app/packages/tsconfig/package.json ./packages/tsconfig/
-COPY --from=builder /app/packages/ui/package.json ./packages/ui/
 
 # Built artifacts.
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
