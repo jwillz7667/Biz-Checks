@@ -99,4 +99,4 @@ ENV HOME=/home/app
 # Resolve prisma directly via node + workspace bin (avoids spawning corepack
 # at every startup, which is slow and fragile in slim images).
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "cd apps/api && ./node_modules/.bin/prisma migrate deploy && node dist/src/server.js"]
+CMD ["sh", "-c", "echo \"[boot] starting biz-checks api\" && cd apps/api && echo \"[boot] cwd=$(pwd) HOME=$HOME PORT=${PORT:-unset}\" && ./node_modules/.bin/prisma migrate deploy && echo \"[boot] migrations applied; launching node\" && exec node dist/src/server.js"]
