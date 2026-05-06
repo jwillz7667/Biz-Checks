@@ -1,5 +1,6 @@
 'use client';
 
+import { randomCanvasObjectId } from '@biz-checks/domain';
 import { create } from 'zustand';
 
 import type {
@@ -15,8 +16,6 @@ import type {
   TextObject,
   ValueExpression,
 } from '@/lib/api/types';
-
-import { canvasObjectId } from '@/lib/format';
 
 const POINTS_PER_INCH = 72;
 const inch = (n: number): number => n * POINTS_PER_INCH;
@@ -63,7 +62,7 @@ function snapshot(doc: TemplateDocument | null): string | null {
 }
 
 function defaultsForKind(kind: CanvasObjectKind, zIndex: number): CanvasObject {
-  const id = canvasObjectId();
+  const id = randomCanvasObjectId();
   const base = {
     id,
     rotation: 0,
@@ -251,7 +250,7 @@ export const useDesignerStore = create<DesignerState>((set, get) => ({
     const maxZ = doc.objects.reduce((m, o) => Math.max(m, o.zIndex), 0);
     const copy: CanvasObject = {
       ...orig,
-      id: canvasObjectId(),
+      id: randomCanvasObjectId(),
       name: `${orig.name} copy`,
       position: {
         x: orig.position.x + POINTS_PER_INCH / 4,

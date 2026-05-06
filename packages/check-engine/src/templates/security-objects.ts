@@ -1,6 +1,6 @@
-import { toPoints } from '@biz-checks/domain';
+import { randomCanvasObjectId, toPoints } from '@biz-checks/domain';
 
-import type { CanvasObject, CanvasObjectId } from '@biz-checks/domain';
+import type { CanvasObject } from '@biz-checks/domain';
 
 /**
  * Canvas-object factory that produces a fully security-featured business
@@ -34,12 +34,12 @@ import type { CanvasObject, CanvasObjectId } from '@biz-checks/domain';
 
 const inch = (n: number): number => toPoints(n, 'inch');
 
-const id = (suffix: string, n: number): CanvasObjectId =>
-  `obj_sec_${suffix}_${n.toString(36)}` as CanvasObjectId;
+// Suffix/n are ignored at runtime — random cuid-likes guarantee uniqueness
+// (so the previous `idPrefix` collision-avoidance knob is unnecessary) and
+// satisfy the API's `CanvasObjectIdSchema` (`/^[a-z0-9]{20,32}$/i`).
+const id = (_suffix: string, _n: number) => randomCanvasObjectId();
 
 interface BuildOptions {
-  /** Tag added to all object IDs to avoid collisions when embedded multiple times. */
-  readonly idPrefix?: string;
   /** Top-right warning amount. Default $50,000.00. */
   readonly maxAmountText?: string;
   /** Stale-date warning. Default "VOID AFTER 90 DAYS". */
@@ -53,13 +53,12 @@ interface BuildOptions {
  * Coordinates assume an 8.5" × 3.5" check (Stocks['business-3up'] etc.).
  */
 export function buildSecurityCheckObjects(opts: BuildOptions = {}): CanvasObject[] {
-  const prefix = opts.idPrefix ?? 'std';
   const maxAmount = opts.maxAmountText ?? 'NOT VALID FOR AMOUNTS OVER $50,000.00';
   const staleDate = opts.staleDateText ?? 'VOID AFTER 90 DAYS';
   const twoSig = opts.twoSignatureText ?? 'TWO SIGNATURES REQUIRED ABOVE $1,000.00';
 
   let n = 0;
-  const next = (suffix: string): CanvasObjectId => id(`${prefix}_${suffix}`, ++n);
+  const next = (suffix: string) => id(suffix, ++n);
 
   const objects: CanvasObject[] = [];
 

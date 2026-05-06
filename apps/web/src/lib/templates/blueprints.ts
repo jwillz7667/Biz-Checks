@@ -4,9 +4,9 @@
  * the client bundle. The shapes match `TemplateDocument` exactly.
  */
 
-import type { CanvasObject, CheckStock, LabelField, TemplateDocument } from '@/lib/api/types';
+import { randomCanvasObjectId } from '@biz-checks/domain';
 
-import { canvasObjectId } from '@/lib/format';
+import type { CanvasObject, CheckStock, LabelField, TemplateDocument } from '@/lib/api/types';
 
 const POINTS_PER_INCH = 72;
 const inch = (n: number): number => n * POINTS_PER_INCH;
@@ -83,7 +83,7 @@ export const StockOptions: { id: StockId; label: string; description: string }[]
 
 // API requires CanvasObject `id` to match `/^[a-z0-9]{20,32}$/i`. The suffix is
 // ignored at runtime (kept only for source-level readability).
-const id = (_suffix: string): string => canvasObjectId();
+const id = (_suffix: string): string => randomCanvasObjectId();
 
 /**
  * Canonical placement of objects on a US business check (ANSI X9.100).
@@ -455,7 +455,7 @@ export function buildBlankDocument(stockId: StockId): TemplateDocument {
  */
 function buildSecurityObjects(): CanvasObject[] {
   const out: CanvasObject[] = [];
-  const sid = (_suffix: string): string => canvasObjectId();
+  const sid = (_suffix: string): string => randomCanvasObjectId();
 
   const microTopBottomText =
     'AUTHORIZED · ORIGINAL DOCUMENT · DO NOT COPY · ' +

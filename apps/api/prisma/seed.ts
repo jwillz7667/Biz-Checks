@@ -126,7 +126,7 @@ async function main(): Promise<void> {
       if (!stock) continue;
       const document = {
         stock,
-        objects: buildSecurityCheckObjects({ idPrefix: stockKey }),
+        objects: buildSecurityCheckObjects(),
         labelFields: [
           { name: 'CompanyName', kind: 'constant' as const, value: 'Demo Co.' },
           { name: 'Payee', kind: 'constant' as const, value: '' },

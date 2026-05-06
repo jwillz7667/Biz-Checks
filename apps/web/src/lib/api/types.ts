@@ -322,16 +322,16 @@ export interface CreateCheckBatchInput {
 /* Data sources                                                               */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-export type DataSourceKind = 'CSV' | 'INLINE';
+export type DataSourceKind = 'EMBEDDED' | 'CSV' | 'EXCEL';
 
-export type DataSourceColumnType = 'string' | 'number' | 'date' | 'boolean';
+export type DataSourceColumnType = 'string' | 'number' | 'date' | 'currency';
 
 export interface DataSourceColumn {
   name: string;
   type: DataSourceColumnType;
 }
 
-export type DataSourceRow = Record<string, string | number | boolean | null>;
+export type DataSourceRow = Record<string, string | number | null>;
 
 export interface DataSourceDTO {
   id: string;

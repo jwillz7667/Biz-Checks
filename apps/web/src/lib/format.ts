@@ -69,19 +69,3 @@ export function clientId(prefix: string): string {
     : Math.random().toString(36).slice(2);
   return `${prefix}_${rand.replace(/-/g, '').slice(0, 16)}`;
 }
-
-/**
- * Generate a CanvasObject id that matches the API's `CanvasObjectIdSchema`
- * (`/^[a-z0-9]{20,32}$/i`). Used by the designer/blueprints — `clientId`'s
- * `prefix_` shape is rejected by the API.
- */
-export function canvasObjectId(): string {
-  const rand =
-    typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID().replace(/-/g, '')
-      : (Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).replace(
-          /[^a-z0-9]/gi,
-          '',
-        );
-  return rand.slice(0, 24).padEnd(20, '0');
-}

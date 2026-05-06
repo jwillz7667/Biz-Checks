@@ -1,12 +1,15 @@
-import { toPoints } from '@biz-checks/domain';
+import { randomCanvasObjectId, toPoints } from '@biz-checks/domain';
 
 import { Stocks } from './stocks.js';
 
-import type { CanvasObject, CanvasObjectId } from '@biz-checks/domain';
+import type { CanvasObject } from '@biz-checks/domain';
 
 const inch = (n: number) => toPoints(n, 'inch');
 
-const id = (suffix: string): CanvasObjectId => `obj_blueprint_${suffix}` as CanvasObjectId;
+// Suffix is ignored at runtime — kept only as a source-level hint of which
+// element this id belongs to. Ids are random cuid-likes so they round-trip
+// through the API's `CanvasObjectIdSchema` (`/^[a-z0-9]{20,32}$/i`).
+const id = (_suffix: string) => randomCanvasObjectId();
 
 /**
  * The canonical placement of objects on a US business check, per ANSI

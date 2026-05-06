@@ -69,7 +69,7 @@ export default function DataSourcesPage(): React.JSX.Element {
                   <tr key={d.id}>
                     <td className="px-5 py-3 font-medium text-gray-900">{d.name}</td>
                     <td className="px-5 py-3">
-                      <Badge tone={d.kind === 'CSV' ? 'blue' : 'purple'}>{d.kind}</Badge>
+                      <Badge tone={d.kind === 'CSV' ? 'blue' : d.kind === 'EXCEL' ? 'green' : 'purple'}>{d.kind}</Badge>
                     </td>
                     <td className="px-5 py-3 text-gray-700">
                       <div className="flex flex-wrap gap-1">
