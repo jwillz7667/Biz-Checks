@@ -1,7 +1,5 @@
 'use client';
 
-import { useDesignerStore } from '@/lib/designer/store';
-
 import type {
   AmountBoxObject,
   CanvasObject,
@@ -11,6 +9,9 @@ import type {
   TextObject,
   ValueExpression,
 } from '@/lib/api/types';
+
+import { useDesignerStore } from '@/lib/designer/store';
+
 
 const POINTS_PER_INCH = 72;
 
@@ -80,7 +81,7 @@ function ObjectProperties({
           <input
             type="text"
             value={object.name}
-            onChange={(e) => onChange({ name: e.target.value } as Partial<CanvasObject>)}
+            onChange={(e) => onChange({ name: e.target.value })}
             className={inputCls}
           />
         </PropField>
@@ -91,7 +92,7 @@ function ObjectProperties({
               onChange={(v) =>
                 onChange({
                   position: { x: v * POINTS_PER_INCH, y: object.position.y },
-                } as Partial<CanvasObject>)
+                })
               }
               step={0.05}
             />
@@ -102,7 +103,7 @@ function ObjectProperties({
               onChange={(v) =>
                 onChange({
                   position: { x: object.position.x, y: v * POINTS_PER_INCH },
-                } as Partial<CanvasObject>)
+                })
               }
               step={0.05}
             />
@@ -115,7 +116,7 @@ function ObjectProperties({
               onChange={(v) =>
                 onChange({
                   size: { width: Math.max(0.05, v) * POINTS_PER_INCH, height: object.size.height },
-                } as Partial<CanvasObject>)
+                })
               }
               step={0.05}
             />
@@ -126,7 +127,7 @@ function ObjectProperties({
               onChange={(v) =>
                 onChange({
                   size: { width: object.size.width, height: Math.max(0.05, v) * POINTS_PER_INCH },
-                } as Partial<CanvasObject>)
+                })
               }
               step={0.05}
             />
@@ -135,7 +136,7 @@ function ObjectProperties({
         <PropField label="Rotation (deg)">
           <NumberInput
             value={object.rotation}
-            onChange={(v) => onChange({ rotation: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ rotation: v })}
             step={1}
           />
         </PropField>
@@ -143,12 +144,12 @@ function ObjectProperties({
           <CheckboxField
             label="Visible"
             checked={object.visible}
-            onChange={(v) => onChange({ visible: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ visible: v })}
           />
           <CheckboxField
             label="Locked"
             checked={object.locked}
-            onChange={(v) => onChange({ locked: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ locked: v })}
           />
         </Row>
       </Section>
@@ -174,14 +175,14 @@ function TextProps({
   return (
     <>
       <Section title="Value">
-        <ValueEditor value={object.value} onChange={(v) => onChange({ value: v } as Partial<CanvasObject>)} />
+        <ValueEditor value={object.value} onChange={(v) => onChange({ value: v })} />
       </Section>
       <Section title="Typography">
         <PropField label="Font family">
           <input
             type="text"
             value={object.fontFamily}
-            onChange={(e) => onChange({ fontFamily: e.target.value } as Partial<CanvasObject>)}
+            onChange={(e) => onChange({ fontFamily: e.target.value })}
             className={inputCls}
           />
         </PropField>
@@ -189,7 +190,7 @@ function TextProps({
           <PropField label="Size (pt)" mini>
             <NumberInput
               value={object.fontSize}
-              onChange={(v) => onChange({ fontSize: v } as Partial<CanvasObject>)}
+              onChange={(v) => onChange({ fontSize: v })}
               step={0.5}
             />
           </PropField>
@@ -197,7 +198,7 @@ function TextProps({
             <select
               value={object.fontWeight}
               onChange={(e) =>
-                onChange({ fontWeight: e.target.value as TextObject['fontWeight'] } as Partial<CanvasObject>)
+                onChange({ fontWeight: e.target.value as TextObject['fontWeight'] })
               }
               className={selectCls}
             >
@@ -215,7 +216,7 @@ function TextProps({
               onChange={(e) =>
                 onChange({
                   justification: e.target.value as TextObject['justification'],
-                } as Partial<CanvasObject>)
+                })
               }
               className={selectCls}
             >
@@ -227,7 +228,7 @@ function TextProps({
           <PropField label="Color" mini>
             <ColorInput
               value={object.color}
-              onChange={(c) => onChange({ color: c } as Partial<CanvasObject>)}
+              onChange={(c) => onChange({ color: c })}
             />
           </PropField>
         </Row>
@@ -235,14 +236,14 @@ function TextProps({
           <PropField label="Line height" mini>
             <NumberInput
               value={object.lineHeight}
-              onChange={(v) => onChange({ lineHeight: v } as Partial<CanvasObject>)}
+              onChange={(v) => onChange({ lineHeight: v })}
               step={0.05}
             />
           </PropField>
           <PropField label="Letter sp." mini>
             <NumberInput
               value={object.letterSpacing}
-              onChange={(v) => onChange({ letterSpacing: v } as Partial<CanvasObject>)}
+              onChange={(v) => onChange({ letterSpacing: v })}
               step={0.5}
             />
           </PropField>
@@ -251,12 +252,12 @@ function TextProps({
           <CheckboxField
             label="Italic"
             checked={object.italic}
-            onChange={(v) => onChange({ italic: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ italic: v })}
           />
           <CheckboxField
             label="Underline"
             checked={object.underline}
-            onChange={(v) => onChange({ underline: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ underline: v })}
           />
         </Row>
       </Section>
@@ -274,7 +275,7 @@ function MicrProps({
   return (
     <>
       <Section title="MICR Value">
-        <ValueEditor value={object.value} onChange={(v) => onChange({ value: v } as Partial<CanvasObject>)} />
+        <ValueEditor value={object.value} onChange={(v) => onChange({ value: v })} />
         <p className="text-[11px] text-gray-500">
           MICR is rendered with the embedded E-13B font in the PDF. The on-screen preview uses a
           fallback font and may not match the exact glyphs.
@@ -288,7 +289,7 @@ function MicrProps({
               onChange={(e) =>
                 onChange({
                   fontVariant: e.target.value as MICRObject['fontVariant'],
-                } as Partial<CanvasObject>)
+                })
               }
               className={selectCls}
             >
@@ -299,7 +300,7 @@ function MicrProps({
           <PropField label="Size (pt)" mini>
             <NumberInput
               value={object.fontSize}
-              onChange={(v) => onChange({ fontSize: v } as Partial<CanvasObject>)}
+              onChange={(v) => onChange({ fontSize: v })}
               step={0.5}
             />
           </PropField>
@@ -311,7 +312,7 @@ function MicrProps({
               onChange={(e) =>
                 onChange({
                   justification: e.target.value as MICRObject['justification'],
-                } as Partial<CanvasObject>)
+                })
               }
               className={selectCls}
             >
@@ -323,7 +324,7 @@ function MicrProps({
           <PropField label="Color" mini>
             <ColorInput
               value={object.color}
-              onChange={(c) => onChange({ color: c } as Partial<CanvasObject>)}
+              onChange={(c) => onChange({ color: c })}
             />
           </PropField>
         </Row>
@@ -342,14 +343,14 @@ function AmountProps({
   return (
     <>
       <Section title="Amount value">
-        <ValueEditor value={object.value} onChange={(v) => onChange({ value: v } as Partial<CanvasObject>)} />
+        <ValueEditor value={object.value} onChange={(v) => onChange({ value: v })} />
       </Section>
       <Section title="Style">
         <PropField label="Font family">
           <input
             type="text"
             value={object.fontFamily}
-            onChange={(e) => onChange({ fontFamily: e.target.value } as Partial<CanvasObject>)}
+            onChange={(e) => onChange({ fontFamily: e.target.value })}
             className={inputCls}
           />
         </PropField>
@@ -357,7 +358,7 @@ function AmountProps({
           <PropField label="Size (pt)" mini>
             <NumberInput
               value={object.fontSize}
-              onChange={(v) => onChange({ fontSize: v } as Partial<CanvasObject>)}
+              onChange={(v) => onChange({ fontSize: v })}
               step={0.5}
             />
           </PropField>
@@ -367,7 +368,7 @@ function AmountProps({
               onChange={(e) =>
                 onChange({
                   fontWeight: e.target.value as AmountBoxObject['fontWeight'],
-                } as Partial<CanvasObject>)
+                })
               }
               className={selectCls}
             >
@@ -385,7 +386,7 @@ function AmountProps({
               onChange={(e) =>
                 onChange({
                   justification: e.target.value as AmountBoxObject['justification'],
-                } as Partial<CanvasObject>)
+                })
               }
               className={selectCls}
             >
@@ -397,7 +398,7 @@ function AmountProps({
           <PropField label="Color" mini>
             <ColorInput
               value={object.color}
-              onChange={(c) => onChange({ color: c } as Partial<CanvasObject>)}
+              onChange={(c) => onChange({ color: c })}
             />
           </PropField>
         </Row>
@@ -407,7 +408,7 @@ function AmountProps({
             onChange={(e) =>
               onChange({
                 securityFont: e.target.value as AmountBoxObject['securityFont'],
-              } as Partial<CanvasObject>)
+              })
             }
             className={selectCls}
           >
@@ -419,7 +420,7 @@ function AmountProps({
         <CheckboxField
           label="Show currency symbol"
           checked={object.showCurrencySymbol}
-          onChange={(v) => onChange({ showCurrencySymbol: v } as Partial<CanvasObject>)}
+          onChange={(v) => onChange({ showCurrencySymbol: v })}
         />
       </Section>
     </>
@@ -439,7 +440,7 @@ function ShapeProps({
         <select
           value={object.shape}
           onChange={(e) =>
-            onChange({ shape: e.target.value as ShapeObject['shape'] } as Partial<CanvasObject>)
+            onChange({ shape: e.target.value as ShapeObject['shape'] })
           }
           className={selectCls}
         >
@@ -452,13 +453,13 @@ function ShapeProps({
         <PropField label="Stroke" mini>
           <ColorInput
             value={object.strokeColor}
-            onChange={(c) => onChange({ strokeColor: c } as Partial<CanvasObject>)}
+            onChange={(c) => onChange({ strokeColor: c })}
           />
         </PropField>
         <PropField label="Width" mini>
           <NumberInput
             value={object.strokeWidth}
-            onChange={(v) => onChange({ strokeWidth: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ strokeWidth: v })}
             step={0.5}
           />
         </PropField>
@@ -467,13 +468,13 @@ function ShapeProps({
         <PropField label="Fill" mini>
           <ColorInput
             value={object.fillColor ?? '#ffffff'}
-            onChange={(c) => onChange({ fillColor: c } as Partial<CanvasObject>)}
+            onChange={(c) => onChange({ fillColor: c })}
           />
         </PropField>
         <PropField label="Radius" mini>
           <NumberInput
             value={object.cornerRadius}
-            onChange={(v) => onChange({ cornerRadius: v } as Partial<CanvasObject>)}
+            onChange={(v) => onChange({ cornerRadius: v })}
             step={1}
           />
         </PropField>
@@ -495,7 +496,7 @@ function ImageProps({
         <input
           type="text"
           value={object.url}
-          onChange={(e) => onChange({ url: e.target.value } as Partial<CanvasObject>)}
+          onChange={(e) => onChange({ url: e.target.value })}
           className={inputCls}
         />
       </PropField>
@@ -503,7 +504,7 @@ function ImageProps({
         <select
           value={object.fitMode}
           onChange={(e) =>
-            onChange({ fitMode: e.target.value as ImageObject['fitMode'] } as Partial<CanvasObject>)
+            onChange({ fitMode: e.target.value as ImageObject['fitMode'] })
           }
           className={selectCls}
         >

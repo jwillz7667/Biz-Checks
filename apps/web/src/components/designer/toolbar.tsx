@@ -13,11 +13,12 @@ import {
   ZoomOut,
 } from 'lucide-react';
 
-import { useDesignerStore } from '@/lib/designer/store';
-
 import type { CanvasObjectKind } from '@/lib/api/types';
 
-const ADD_BUTTONS: Array<{ kind: CanvasObjectKind; label: string; icon: React.ReactNode }> = [
+import { useDesignerStore } from '@/lib/designer/store';
+
+
+const ADD_BUTTONS: { kind: CanvasObjectKind; label: string; icon: React.ReactNode }[] = [
   { kind: 'text', label: 'Text', icon: <TypeIcon className="size-4" /> },
   { kind: 'micr', label: 'MICR', icon: <PenLine className="size-4" /> },
   { kind: 'amount-box', label: 'Amount', icon: <Square className="size-4" /> },

@@ -5,6 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import type {
+  BankAccountDTO,
+  CreateTemplateInput,
+  PaginatedDTO,
+  TemplateDTO,
+} from '@/lib/api/types';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
@@ -13,12 +20,6 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { ApiError } from '@/lib/api/client';
 import { useApi, useApiMutation } from '@/lib/api/hooks';
-import type {
-  BankAccountDTO,
-  CreateTemplateInput,
-  PaginatedDTO,
-  TemplateDTO,
-} from '@/lib/api/types';
 import { formatDateTime } from '@/lib/format';
 import {
   StockOptions,
@@ -71,7 +72,7 @@ export default function TemplatesPage(): React.JSX.Element {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/templates/${t.id}` as never}
+                        href={`/templates/${t.id}`}
                         className="truncate font-medium text-gray-900 hover:text-brand-700"
                       >
                         {t.name}
@@ -91,7 +92,7 @@ export default function TemplatesPage(): React.JSX.Element {
                   <div className="flex shrink-0 items-center gap-3 text-xs text-gray-500">
                     <span>Updated {formatDateTime(t.updatedAt)}</span>
                     <Link
-                      href={`/templates/${t.id}` as never}
+                      href={`/templates/${t.id}`}
                       className="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
                     >
                       Open designer
@@ -160,7 +161,7 @@ function CreateTemplateForm({
       toast.success('Template created');
       mutateList();
       onClose();
-      router.push(`/templates/${created.id}` as never);
+      router.push(`/templates/${created.id}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not create template');
     }

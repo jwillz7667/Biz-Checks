@@ -6,12 +6,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import type { BankAccountDTO, CreateBankAccountInput, PaginatedDTO } from '@/lib/api/types';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ApiError } from '@/lib/api/client';
 import { useApi, useApiMutation } from '@/lib/api/hooks';
-import type { BankAccountDTO, CreateBankAccountInput, PaginatedDTO } from '@/lib/api/types';
 import { useToast } from '@/lib/ui/toast';
 
 const Schema = z.object({

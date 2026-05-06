@@ -8,10 +8,13 @@ providers = ["node"]
 nixPkgs = ["nodejs_20", "openssl", "python3", "gcc"]
 
 [phases.install]
+# Force-install devDependencies — Railway sets NODE_ENV=production at the
+# service level, which causes pnpm to skip devDeps. We need them (typescript,
+# prisma CLI, tsx) to build the api.
 cmds = [
   "corepack enable",
   "corepack prepare pnpm@9.12.3 --activate",
-  "pnpm install --frozen-lockfile",
+  "pnpm install --frozen-lockfile --prod=false",
 ]
 
 [phases.build]

@@ -5,7 +5,9 @@ import useSWRMutation, { type SWRMutationResponse } from 'swr/mutation';
 
 import { useAuth } from '../auth/auth-provider';
 
-import { ApiError, type RequestOptions } from './client';
+import { type RequestOptions } from './client';
+
+import type { ApiError} from './client';
 
 /**
  * Build a stable SWR cache key from path + auth + query. Including the

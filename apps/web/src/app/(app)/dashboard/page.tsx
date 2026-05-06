@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 
-import { Card, CardBody, CardHeader } from '@/components/ui/card';
-import { useApi } from '@/lib/api/hooks';
 import type {
   BankAccountDTO,
   CheckBatchDTO,
@@ -11,12 +9,15 @@ import type {
   TemplateDTO,
 } from '@/lib/api/types';
 
+import { Card, CardBody, CardHeader } from '@/components/ui/card';
+import { useApi } from '@/lib/api/hooks';
+
 export default function DashboardPage(): React.JSX.Element {
   const accounts = useApi<PaginatedDTO<BankAccountDTO>>('/api/v1/bank-accounts');
   const templates = useApi<PaginatedDTO<TemplateDTO>>('/api/v1/templates');
   const batches = useApi<PaginatedDTO<CheckBatchDTO>>('/api/v1/check-batches', { limit: 5 });
 
-  const stats: ReadonlyArray<{ label: string; value: string; href: string }> = [
+  const stats: readonly { label: string; value: string; href: string }[] = [
     {
       label: 'Bank accounts',
       value: accounts.data?.total.toString() ?? '—',
@@ -57,7 +58,7 @@ export default function DashboardPage(): React.JSX.Element {
                 <li key={b.id} className="flex items-center justify-between px-5 py-3 text-sm">
                   <div>
                     <Link
-                      href={`/batches/${b.id}` as never}
+                      href={`/batches/${b.id}`}
                       className="font-medium text-brand-600 hover:underline"
                     >
                       {b.name}

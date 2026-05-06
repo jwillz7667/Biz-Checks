@@ -5,7 +5,6 @@ import { useCallback, useMemo, useRef } from 'react';
 import { Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text } from 'react-konva';
 import useImage from 'use-image';
 
-import { useDesignerStore, describeValue } from '@/lib/designer/store';
 
 import type {
   CanvasObject,
@@ -15,6 +14,8 @@ import type {
   TemplateDocument,
 } from '@/lib/api/types';
 import type Konva from 'konva';
+
+import { useDesignerStore, describeValue } from '@/lib/designer/store';
 
 const POINTS_PER_INCH = 72;
 
@@ -380,15 +381,15 @@ function mergeObject(
   patch: Partial<CanvasObject>,
   snap: (v: number) => number,
 ): CanvasObject {
-  let next = { ...prev } as CanvasObject;
+  let next = { ...prev };
   if (patch.position) {
     next = {
       ...next,
       position: { x: snap(patch.position.x), y: snap(patch.position.y) },
-    } as CanvasObject;
+    };
   }
   if (patch.size) {
-    next = { ...next, size: patch.size } as CanvasObject;
+    next = { ...next, size: patch.size };
   }
   return next;
 }

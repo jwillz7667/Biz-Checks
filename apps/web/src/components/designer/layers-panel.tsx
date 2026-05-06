@@ -13,7 +13,6 @@ import {
 
 import { KIND_LABEL, useDesignerStore } from '@/lib/designer/store';
 
-import type { CanvasObject } from '@/lib/api/types';
 
 export function LayersPanel(): React.JSX.Element {
   const document = useDesignerStore((s) => s.document);
@@ -68,7 +67,7 @@ export function LayersPanel(): React.JSX.Element {
                       off={<EyeOff className="size-3.5" />}
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateObject(obj.id, (o) => ({ ...o, visible: !o.visible }) as CanvasObject);
+                        updateObject(obj.id, (o) => ({ ...o, visible: !o.visible }));
                       }}
                       title="Toggle visibility"
                     />
@@ -78,7 +77,7 @@ export function LayersPanel(): React.JSX.Element {
                       off={<Lock className="size-3.5" />}
                       onClick={(e) => {
                         e.stopPropagation();
-                        updateObject(obj.id, (o) => ({ ...o, locked: !o.locked }) as CanvasObject);
+                        updateObject(obj.id, (o) => ({ ...o, locked: !o.locked }));
                       }}
                       title="Toggle lock"
                     />

@@ -12,7 +12,6 @@ import {
 } from 'react';
 
 import { ApiClient } from '../api/client';
-import type { AuthSessionDTO, UserRole } from '../api/types';
 import { env } from '../env';
 
 import {
@@ -22,11 +21,13 @@ import {
   persistSession,
 } from './auth-storage';
 
+import type { AuthSessionDTO, UserRole } from '../api/types';
+
 export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
-  organizations: Array<{ id: string; name: string; role: UserRole }>;
+  organizations: { id: string; name: string; role: UserRole }[];
 }
 
 export interface AuthContextValue {

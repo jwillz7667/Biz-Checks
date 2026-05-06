@@ -3,15 +3,6 @@
 import { FileText, Plus, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Badge, type BadgeTone } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardBody, CardHeader } from '@/components/ui/card';
-import { Empty } from '@/components/ui/empty';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { ApiError } from '@/lib/api/client';
-import { useApi, useApiMutation } from '@/lib/api/hooks';
 import type {
   BankAccountDTO,
   CheckDTO,
@@ -21,6 +12,16 @@ import type {
   PaginatedDTO,
   TemplateDTO,
 } from '@/lib/api/types';
+
+import { Badge, type BadgeTone } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardBody, CardHeader } from '@/components/ui/card';
+import { Empty } from '@/components/ui/empty';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { ApiError } from '@/lib/api/client';
+import { useApi, useApiMutation } from '@/lib/api/hooks';
 import { formatDate, formatMinor, parseDollarsToMinor } from '@/lib/format';
 import { useToast } from '@/lib/ui/toast';
 

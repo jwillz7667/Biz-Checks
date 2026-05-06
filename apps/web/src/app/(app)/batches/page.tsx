@@ -5,14 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Badge, type BadgeTone } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardBody, CardHeader } from '@/components/ui/card';
-import { Empty } from '@/components/ui/empty';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { ApiError } from '@/lib/api/client';
-import { useApi, useApiMutation } from '@/lib/api/hooks';
 import type {
   BankAccountDTO,
   CheckBatchDTO,
@@ -24,6 +16,15 @@ import type {
   PaginatedDTO,
   TemplateDTO,
 } from '@/lib/api/types';
+
+import { Badge, type BadgeTone } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardBody, CardHeader } from '@/components/ui/card';
+import { Empty } from '@/components/ui/empty';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { ApiError } from '@/lib/api/client';
+import { useApi, useApiMutation } from '@/lib/api/hooks';
 import { clientId, formatDateTime, formatMinor, parseDollarsToMinor } from '@/lib/format';
 import { useToast } from '@/lib/ui/toast';
 
@@ -86,7 +87,7 @@ export default function BatchesPage(): React.JSX.Element {
                 {batches.data.items.map((b) => (
                   <tr key={b.id}>
                     <td className="px-5 py-3 font-medium text-gray-900">
-                      <Link href={`/batches/${b.id}` as never} className="hover:text-brand-700">
+                      <Link href={`/batches/${b.id}`} className="hover:text-brand-700">
                         {b.name}
                       </Link>
                     </td>
@@ -100,7 +101,7 @@ export default function BatchesPage(): React.JSX.Element {
                     <td className="px-5 py-3 text-gray-500">{formatDateTime(b.createdAt)}</td>
                     <td className="px-5 py-3 text-right">
                       <Link
-                        href={`/batches/${b.id}` as never}
+                        href={`/batches/${b.id}`}
                         className="text-xs font-medium text-brand-600 hover:text-brand-700"
                       >
                         Open →
@@ -193,7 +194,7 @@ function CreateBatchWizard({
   useEffect(() => {
     if (rowMode !== 'data-source') return;
     const data = sourceDetail.data;
-    if (!data || !data.rows) return;
+    if (!data?.rows) return;
     const cols = data.columns.map((c) => c.name);
     const findCol = (...candidates: string[]): string | null => {
       for (const cand of candidates) {
@@ -254,7 +255,7 @@ function CreateBatchWizard({
       toast.success('Batch created', `${created.count} checks queued`);
       onCreated();
       onClose();
-      router.push(`/batches/${created.id}` as never);
+      router.push(`/batches/${created.id}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not create batch');
     }

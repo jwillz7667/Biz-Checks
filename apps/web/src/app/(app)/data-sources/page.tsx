@@ -3,6 +3,8 @@
 import { Database, Plus, Upload, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 
+import type { DataSourceDTO, ImportCSVInput, PaginatedDTO } from '@/lib/api/types';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
@@ -10,7 +12,6 @@ import { Empty } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
 import { ApiError } from '@/lib/api/client';
 import { useApi, useApiMutation } from '@/lib/api/hooks';
-import type { DataSourceDTO, ImportCSVInput, PaginatedDTO } from '@/lib/api/types';
 import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/lib/ui/toast';
 

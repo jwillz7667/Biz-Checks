@@ -14,8 +14,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { cn } from '@/lib/cn';
 import { useAuth } from '@/lib/auth/auth-provider';
+import { cn } from '@/lib/cn';
 
 interface NavItem {
   href: string;
@@ -23,7 +23,7 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const NAV: ReadonlyArray<NavItem> = [
+const NAV: readonly NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/templates', label: 'Templates', icon: Layers },
   { href: '/bank-accounts', label: 'Bank accounts', icon: Banknote },
@@ -96,7 +96,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }): 
             return (
               <Link
                 key={item.href}
-                href={item.href as never}
+                href={item.href}
                 className={cn(
                   'mb-1 flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                   isActive

@@ -56,7 +56,7 @@ export const Stocks: Record<string, CheckStock> = {
 
 export type StockId = keyof typeof Stocks;
 
-export const StockOptions: Array<{ id: StockId; label: string; description: string }> = [
+export const StockOptions: { id: StockId; label: string; description: string }[] = [
   {
     id: 'business-3up',
     label: '3-per-page (business)',

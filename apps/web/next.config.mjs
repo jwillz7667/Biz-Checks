@@ -4,6 +4,9 @@ const nextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   typedRoutes: true,
+  // Lint runs as a dedicated step in CI (`pnpm lint`); blocking `next build`
+  // on stylistic ESLint rules slows feedback in deploys without adding safety.
+  eslint: { ignoreDuringBuilds: true },
   transpilePackages: [
     '@biz-checks/domain',
     '@biz-checks/micr',

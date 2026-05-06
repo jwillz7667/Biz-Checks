@@ -14,14 +14,14 @@ export interface AuthSessionDTO {
     id: string;
     email: string;
     fullName: string;
-    organizations: Array<{ id: string; name: string; role: UserRole }>;
+    organizations: { id: string; name: string; role: UserRole }[];
   };
 }
 
 export interface MeDTO {
   id: string;
   email: string;
-  memberships: Array<{ organizationId: string; role: UserRole }>;
+  memberships: { organizationId: string; role: UserRole }[];
 }
 
 export type BankAccountStatus = 'ACTIVE' | 'INACTIVE' | 'CLOSED';
@@ -329,9 +329,7 @@ export interface DataSourceColumn {
   type: DataSourceColumnType;
 }
 
-export interface DataSourceRow {
-  [columnName: string]: string | number | boolean | null;
-}
+export type DataSourceRow = Record<string, string | number | boolean | null>;
 
 export interface DataSourceDTO {
   id: string;

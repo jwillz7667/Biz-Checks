@@ -35,7 +35,7 @@ export default function LoginPage(): React.JSX.Element {
     setServerError(null);
     try {
       await login(data.email, data.password);
-      router.replace(next as never);
+      router.replace(next);
     } catch (err) {
       setServerError(
         err instanceof ApiError ? err.message : 'Could not sign in. Please try again.',

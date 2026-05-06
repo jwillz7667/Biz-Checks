@@ -26,7 +26,7 @@
     "db:migrate": "pnpm --filter @biz-checks/api db:migrate",
     "db:seed": "pnpm --filter @biz-checks/api db:seed",
     "db:studio": "pnpm --filter @biz-checks/api db:studio",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

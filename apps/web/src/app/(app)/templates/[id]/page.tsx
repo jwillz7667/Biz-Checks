@@ -14,15 +14,16 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import type { TemplateDTO, UpdateTemplateInput } from '@/lib/api/types';
+
 import { LabelFieldsEditor } from '@/components/designer/label-fields-editor';
 import { LayersPanel } from '@/components/designer/layers-panel';
 import { PropertiesPanel } from '@/components/designer/properties-panel';
 import { DesignerToolbar } from '@/components/designer/toolbar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ApiError } from '@/lib/api/client';
 import { useApi, useApiMutation } from '@/lib/api/hooks';
-import type { TemplateDTO, UpdateTemplateInput } from '@/lib/api/types';
 import { useDesignerStore } from '@/lib/designer/store';
 import { useToast } from '@/lib/ui/toast';
 

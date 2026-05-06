@@ -3,10 +3,11 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
+import type { LabelField } from '@/lib/api/types';
+
 import { Button } from '@/components/ui/button';
 import { useDesignerStore } from '@/lib/designer/store';
 
-import type { LabelField } from '@/lib/api/types';
 
 export function LabelFieldsEditor(): React.JSX.Element {
   const document = useDesignerStore((s) => s.document);
@@ -90,7 +91,7 @@ function FieldRow({
       <input
         type="text"
         value={field.name}
-        onChange={(e) => onChange({ ...field, name: e.target.value } as LabelField)}
+        onChange={(e) => onChange({ ...field, name: e.target.value })}
         className="block w-full rounded border border-gray-200 bg-white px-1.5 py-0.5 text-xs font-mono"
       />
       <span className="rounded bg-gray-100 px-1.5 py-0.5 text-center text-[10px] font-medium uppercase tracking-wider text-gray-700">

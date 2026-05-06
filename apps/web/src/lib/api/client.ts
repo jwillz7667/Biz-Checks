@@ -5,7 +5,7 @@ export interface ApiErrorBody {
     readonly code: string;
     readonly message: string;
     readonly details?: Record<string, unknown>;
-    readonly issues?: ReadonlyArray<{ path: string; code: string; message: string }>;
+    readonly issues?: readonly { path: string; code: string; message: string }[];
   };
 }
 

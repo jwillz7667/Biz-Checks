@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import type { CheckBatchDTO, CheckBatchStatus } from '@/lib/api/types';
+
 import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
 import { ApiError } from '@/lib/api/client';
 import { useApi, useApiMutation } from '@/lib/api/hooks';
 import { useAuth } from '@/lib/auth/auth-provider';
-import type { CheckBatchDTO, CheckBatchStatus } from '@/lib/api/types';
 import { formatDateTime, formatMinor } from '@/lib/format';
 import { useToast } from '@/lib/ui/toast';
 
