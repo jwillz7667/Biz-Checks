@@ -1,7 +1,8 @@
-# Nixpacks build plan for Railway. Targets the @biz-checks/api workspace
-# from the monorepo root. Set the Railway service's "Root Directory" to
-# the repo root and the "Config Path" to apps/api/nixpacks.toml so this
-# file is picked up. Build/start commands also run from the repo root.
+# Nixpacks build plan for Railway. Builds and starts the @biz-checks/api
+# workspace from the monorepo root. Postgres + Redis come from sibling
+# Railway services and are wired in via DATABASE_URL / REDIS_URL.
+
+providers = ["node"]
 
 [phases.setup]
 nixPkgs = ["nodejs_20", "openssl", "python3", "gcc"]

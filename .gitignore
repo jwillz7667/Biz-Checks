@@ -61,3 +61,5 @@ secrets.json
 fonts/*.ttf
 fonts/*.otf
 !fonts/.gitkeep
+.vercel
+.env*.local

@@ -15,8 +15,10 @@ The two services talk over HTTPS. The web app calls the api via
 
 ## 1 — Backend on Railway (`apps/api`)
 
-Railway picks up `apps/api/railway.json` + `apps/api/nixpacks.toml`. Build
-context is the **monorepo root** so workspace packages resolve correctly.
+Railway picks up `railway.json` + `nixpacks.toml` at the **monorepo root**
+(the RAILPACK / NIXPACKS builder requires the config at the repo root, not
+inside `apps/api/`). Build context is the entire monorepo so workspace
+packages resolve correctly.
 
 ### Create the project
 
@@ -25,9 +27,10 @@ context is the **monorepo root** so workspace packages resolve correctly.
    service** named `api`.
 3. In the service settings:
    - **Root Directory**: leave blank (i.e., monorepo root).
-   - **Config Path**: `apps/api/railway.json`
+   - **Config Path**: `railway.json` (default; sits at the repo root).
    - **Watch Paths**: `apps/api/**`, `packages/**`, `pnpm-lock.yaml`,
-     `pnpm-workspace.yaml`, `package.json`, `turbo.json`
+     `pnpm-workspace.yaml`, `package.json`, `turbo.json`, `nixpacks.toml`,
+     `railway.json`
 
 ### Provision dependencies
 
