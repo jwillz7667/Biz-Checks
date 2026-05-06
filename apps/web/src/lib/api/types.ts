@@ -28,17 +28,16 @@ export type BankAccountStatus = 'ACTIVE' | 'INACTIVE' | 'CLOSED';
 
 export interface BankAccountDTO {
   id: string;
-  organizationId: string;
   nickname: string;
   bankName: string;
+  bankAddress: string | null;
   routingNumber: string;
   accountNumberLast4: string;
-  auxOnUs: string | null;
-  startingCheckNumber: number;
+  payerName: string;
+  payerAddress: string | null;
+  payerPhone: string | null;
   nextCheckNumber: number;
-  fractionalRouting: string | null;
   status: BankAccountStatus;
-  archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,11 +45,14 @@ export interface BankAccountDTO {
 export interface CreateBankAccountInput {
   nickname: string;
   bankName: string;
+  bankAddress?: string;
   routingNumber: string;
   accountNumber: string;
   auxOnUs?: string;
-  startingCheckNumber: number;
-  fractionalRouting?: string;
+  payerName: string;
+  payerAddress?: string;
+  payerPhone?: string;
+  nextCheckNumber?: number;
 }
 
 /* ────────────────────────────────────────────────────────────────────────── */

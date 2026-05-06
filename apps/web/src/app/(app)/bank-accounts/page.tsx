@@ -18,11 +18,14 @@ import { useToast } from '@/lib/ui/toast';
 const Schema = z.object({
   nickname: z.string().min(1).max(120),
   bankName: z.string().min(1).max(200),
+  bankAddress: z.string().max(500).optional().or(z.literal('')),
   routingNumber: z.string().regex(/^\d{9}$/, 'Routing must be 9 digits'),
   accountNumber: z.string().regex(/^\d{4,17}$/, 'Account 4-17 digits'),
   auxOnUs: z.string().regex(/^\d{0,15}$/).optional().or(z.literal('')),
-  startingCheckNumber: z.coerce.number().int().min(1),
-  fractionalRouting: z.string().max(20).optional().or(z.literal('')),
+  payerName: z.string().min(1, 'Payer name is required').max(200),
+  payerAddress: z.string().max(500).optional().or(z.literal('')),
+  payerPhone: z.string().max(40).optional().or(z.literal('')),
+  nextCheckNumber: z.coerce.number().int().min(1),
 });
 type FormData = z.infer<typeof Schema>;
 
@@ -119,7 +122,7 @@ function CreateAccountForm({
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(Schema),
-    defaultValues: { startingCheckNumber: 1001 },
+    defaultValues: { nextCheckNumber: 1001 },
   });
 
   const onSubmit = async (data: FormData): Promise<void> => {
@@ -127,11 +130,14 @@ function CreateAccountForm({
       await create.trigger({
         nickname: data.nickname,
         bankName: data.bankName,
+        ...(data.bankAddress ? { bankAddress: data.bankAddress } : {}),
         routingNumber: data.routingNumber,
         accountNumber: data.accountNumber,
         ...(data.auxOnUs ? { auxOnUs: data.auxOnUs } : {}),
-        startingCheckNumber: data.startingCheckNumber,
-        ...(data.fractionalRouting ? { fractionalRouting: data.fractionalRouting } : {}),
+        payerName: data.payerName,
+        ...(data.payerAddress ? { payerAddress: data.payerAddress } : {}),
+        ...(data.payerPhone ? { payerPhone: data.payerPhone } : {}),
+        nextCheckNumber: data.nextCheckNumber,
       });
       toast.success('Bank account created');
       mutateList();
@@ -166,6 +172,12 @@ function CreateAccountForm({
             {...register('bankName')}
           />
           <Input
+            id="bankAddress"
+            label="Bank address (optional)"
+            error={errors.bankAddress?.message}
+            {...register('bankAddress')}
+          />
+          <Input
             id="routingNumber"
             label="Routing number"
             description="9 digits, ABA-validated"
@@ -187,18 +199,30 @@ function CreateAccountForm({
             {...register('auxOnUs')}
           />
           <Input
-            id="startingCheckNumber"
-            type="number"
-            label="Starting check #"
-            error={errors.startingCheckNumber?.message}
-            {...register('startingCheckNumber')}
+            id="payerName"
+            label="Payer name"
+            description="Printed on the check"
+            error={errors.payerName?.message}
+            {...register('payerName')}
           />
           <Input
-            id="fractionalRouting"
-            label="Fractional routing (optional)"
-            description="Displayed top-right, e.g. 11-1234/5678"
-            error={errors.fractionalRouting?.message}
-            {...register('fractionalRouting')}
+            id="payerAddress"
+            label="Payer address (optional)"
+            error={errors.payerAddress?.message}
+            {...register('payerAddress')}
+          />
+          <Input
+            id="payerPhone"
+            label="Payer phone (optional)"
+            error={errors.payerPhone?.message}
+            {...register('payerPhone')}
+          />
+          <Input
+            id="nextCheckNumber"
+            type="number"
+            label="Starting check #"
+            error={errors.nextCheckNumber?.message}
+            {...register('nextCheckNumber')}
           />
           <div className="col-span-full flex justify-end">
             <Button type="submit" isLoading={isSubmitting}>
