@@ -1,0 +1,43 @@
+# Build artifacts
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/.tsbuildinfo
+**/*.tsbuildinfo
+**/coverage
+
+# Environment + secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# VCS / editor / OS noise
+.git
+.github
+.vscode
+.idea
+.DS_Store
+
+# Local-only
+.vercel
+.claude
+fonts/*.ttf
+fonts/*.otf
+
+# Docs (not needed for runtime)
+docs
+README.md
+CHANGELOG.md
+LICENSE
+SECURITY.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# Tooling configs not needed at runtime
+.editorconfig
+.prettierrc*
+.gitattributes
+
+# Web app — api Dockerfile only needs api + packages
+apps/web
