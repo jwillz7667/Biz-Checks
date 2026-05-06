@@ -3,12 +3,12 @@
   "build": {
     "builder": "NIXPACKS",
     "nixpacksConfigPath": "nixpacks.toml",
-    "buildCommand": "corepack enable && corepack prepare pnpm@9.12.3 --activate && pnpm install --frozen-lockfile && pnpm --filter @biz-checks/api... build"
+    "buildCommand": "corepack enable && corepack prepare pnpm@9.12.3 --activate && pnpm install --frozen-lockfile --prod=false && pnpm --filter @biz-checks/api... build"
   },
   "deploy": {
     "startCommand": "pnpm --filter @biz-checks/api start:prod",
     "healthcheckPath": "/health/ready",
-    "healthcheckTimeout": 30,
+    "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 5,
     "numReplicas": 1
