@@ -79,6 +79,12 @@ COPY --from=builder /app/packages/micr/dist ./packages/micr/dist
 # which we don't filter into.
 RUN pnpm install --frozen-lockfile --prod=false --filter @biz-checks/api...
 
+# Regenerate the Prisma client in the runtime stage. The builder stage's
+# generate output lived in a node_modules tree that we discarded above;
+# without this step `@prisma/client` throws "did not initialize yet" on
+# import.
+RUN cd apps/api && ./node_modules/.bin/prisma generate
+
 # Run as non-root with a real $HOME so corepack/npm caches have a writable
 # location. Without this, HOME defaults to /nonexistent and any node
 # tooling that touches `~/.cache` (corepack, npm, etc.) fails with EACCES.
