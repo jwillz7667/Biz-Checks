@@ -1,0 +1,90 @@
+name: Bug report
+description: Report a defect — something that should work doesn't.
+title: '[Bug]: '
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Before submitting,
+        please confirm you've searched existing issues to avoid duplicates.
+
+        **Security issues:** do not file here. See [SECURITY.md](../SECURITY.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      description: Output of `git rev-parse HEAD` or the release tag you're on.
+      placeholder: e.g. v0.2.0 or e9f1c8a
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options:
+        - apps/api (Fastify backend)
+        - apps/web (Next.js frontend)
+        - packages/domain
+        - packages/micr
+        - packages/formula
+        - packages/check-engine
+        - packages/ui
+        - Build / tooling / CI
+        - Documentation
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Plain description of the defect.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps. Include payloads, env vars, and user role.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / error output
+      description: Paste relevant log lines or stack traces. Use code blocks.
+      render: shell
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node version, browser (if web).
+      placeholder: macOS 14.5, Node 20.10.0, Chrome 130
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I have searched existing issues for duplicates.
+          required: true
+        - label: This is not a security report (those go to SECURITY.md).
+          required: true

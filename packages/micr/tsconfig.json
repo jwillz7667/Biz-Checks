@@ -1,0 +1,9 @@
+{
+  "extends": "@biz-checks/tsconfig/library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "references": [{ "path": "../domain" }],
+  "include": ["src/**/*"]
+}

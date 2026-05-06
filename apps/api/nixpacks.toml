@@ -1,0 +1,22 @@
+# Nixpacks build plan for Railway. Targets the @biz-checks/api workspace
+# from the monorepo root. Set the Railway service's "Root Directory" to
+# the repo root and the "Config Path" to apps/api/nixpacks.toml so this
+# file is picked up. Build/start commands also run from the repo root.
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "openssl", "python3", "gcc"]
+
+[phases.install]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@9.12.3 --activate",
+  "pnpm install --frozen-lockfile",
+]
+
+[phases.build]
+cmds = [
+  "pnpm --filter @biz-checks/api... build",
+]
+
+[start]
+cmd = "pnpm --filter @biz-checks/api start:prod"

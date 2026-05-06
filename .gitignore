@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test
+coverage/
+.nyc_output/
+*.lcov
+
+# Database
+*.sqlite
+*.sqlite-journal
+prisma/migrations/.tmp/
+
+# Generated
+**/generated/
+
+# OS / temporary
+.cache/
+tmp/
+*.pid
+
+# Sensitive
+secrets.json
+*.pem
+*.key
+*.crt
+!**/test-fixtures/*.pem
+
+# Fonts — GnuMICR is GPL; install locally per fonts/README.md, do not commit.
+fonts/*.ttf
+fonts/*.otf
+!fonts/.gitkeep

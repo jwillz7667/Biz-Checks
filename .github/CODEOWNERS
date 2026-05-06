@@ -1,0 +1,17 @@
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Default reviewer for everything in the repo.
+* @jwillz7667
+
+# Security-sensitive surfaces.
+/apps/api/src/features/auth/         @jwillz7667
+/apps/api/src/infrastructure/encryption.ts  @jwillz7667
+/apps/api/prisma/                    @jwillz7667
+SECURITY.md                          @jwillz7667
+.github/                             @jwillz7667
+
+# Check rendering & MICR — touch carefully, audit twice.
+/packages/micr/                      @jwillz7667
+/packages/check-engine/              @jwillz7667
+/apps/api/src/features/print/        @jwillz7667
+/apps/web/src/lib/templates/         @jwillz7667

@@ -1,0 +1,70 @@
+version: 2
+updates:
+  # Workspace root + every app/package — pnpm reads from root, but Dependabot
+  # only walks the directories you list.
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'America/Chicago'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    groups:
+      typescript-tooling:
+        patterns:
+          - 'typescript'
+          - '@types/*'
+          - 'tsx'
+          - 'turbo'
+      lint-and-format:
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+          - 'prettier'
+          - 'prettier-*'
+      test-tooling:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+      next-react:
+        patterns:
+          - 'next'
+          - 'react'
+          - 'react-*'
+          - '@next/*'
+      fastify-stack:
+        patterns:
+          - 'fastify'
+          - '@fastify/*'
+          - 'fastify-*'
+      prisma-stack:
+        patterns:
+          - 'prisma'
+          - '@prisma/*'
+    ignore:
+      # Pin major bumps for these — they require migration plans.
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'next'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'fastify'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@prisma/client'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - 'dependencies'
+      - 'ci'
+    commit-message:
+      prefix: 'ci'

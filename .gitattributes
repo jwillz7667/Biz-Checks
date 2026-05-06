@@ -1,0 +1,32 @@
+# Force LF line endings on all text files. Avoids Windows/macOS churn.
+* text=auto eol=lf
+
+# Lockfiles — keep them stable, never expand on diff.
+pnpm-lock.yaml -diff -merge linguist-generated=true
+package-lock.json -diff -merge linguist-generated=true
+yarn.lock -diff -merge linguist-generated=true
+
+# Generated artifacts.
+*.tsbuildinfo -diff linguist-generated=true
+**/dist/** linguist-generated=true
+**/.next/** linguist-generated=true
+**/build/** linguist-generated=true
+
+# Prisma migrations are checked-in but auto-formatted.
+**/prisma/migrations/** linguist-generated=true
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+
+# Mark large/vendored docs as detected language but excluded from stats.
+docs/** linguist-documentation=true
+*.md linguist-documentation=false

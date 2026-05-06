@@ -1,0 +1,354 @@
+// Prisma schema for biz-checks API.
+//
+// Multi-tenant model: every business resource carries `organizationId` and
+// every query MUST filter by it at the repository layer. Tenant isolation
+// is enforced via Postgres row-level security in production
+// (see docs/adr/0002-tenant-isolation.md).
+//
+// Sensitive fields (full account number, aux on-us, signature image bytes)
+// are stored as `String` in this schema but persisted as ciphertext using
+// envelope encryption — see infrastructure/encryption.ts. The plaintext
+// never leaves the application boundary.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto, citext]
+}
+
+enum BankAccountStatus {
+  ACTIVE
+  INACTIVE
+  CLOSED
+}
+
+enum CheckStatus {
+  DRAFT
+  QUEUED
+  RENDERED
+  PRINTED
+  VOIDED
+  REISSUED
+}
+
+enum BatchStatus {
+  DRAFT
+  RENDERING
+  RENDERED
+  PRINTED
+  FAILED
+}
+
+enum DataSourceKind {
+  EMBEDDED
+  CSV
+  EXCEL
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  DESIGNER
+  PRINTER
+  VIEWER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PRINT
+  VOID
+  EXPORT
+  LOGIN
+  LOGOUT
+  GRANT
+  REVOKE
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(200)
+  slug      String   @unique @db.Citext
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          OrganizationMember[]
+  bankAccounts   BankAccount[]
+  templates      CheckTemplate[]
+  checks         Check[]
+  batches        CheckBatch[]
+  dataSources    DataSource[]
+  signatures     SignatureImage[]
+  auditLogs      AuditLog[]
+
+  @@map("organizations")
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique @db.Citext
+  passwordHash String  @db.VarChar(255)
+  fullName     String  @db.VarChar(200)
+  /// MFA TOTP secret encrypted at rest.
+  mfaSecret    String? @db.VarChar(512)
+  mfaEnabled   Boolean @default(false)
+  /// ISO timestamp of the most recent login event; used for stale-account detection.
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships   OrganizationMember[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  role           UserRole @default(VIEWER)
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  userId      String
+  /// SHA-256 hash of the refresh token; the raw token is never stored.
+  tokenHash   String   @unique @db.VarChar(128)
+  /// Family ID for refresh-token rotation: replays force-revoke the family.
+  familyId    String   @db.VarChar(64)
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  /// Optional per-token user agent and IP for audit & geo-anomaly detection.
+  userAgent   String?  @db.VarChar(500)
+  ipAddress   String?  @db.VarChar(64)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model BankAccount {
+  id                   String            @id @default(cuid())
+  organizationId       String
+  nickname             String            @db.VarChar(120)
+  bankName             String            @db.VarChar(200)
+  bankAddress          String?           @db.VarChar(500)
+  /// 9-digit ABA routing number — stored in cleartext (public number).
+  routingNumber        String            @db.VarChar(9)
+  /// Account number ciphertext (envelope-encrypted, base64 encoded).
+  accountNumberCipher  String            @db.VarChar(2048)
+  /// Last 4 digits of account number (cleartext) for UI display only.
+  accountNumberLast4   String            @db.VarChar(4)
+  /// Optional auxiliary on-us field, ciphertext.
+  auxOnUsCipher        String?           @db.VarChar(2048)
+  /// Encryption key version used to encrypt the ciphertexts above.
+  encryptionKeyVersion Int               @default(1)
+  payerName            String            @db.VarChar(200)
+  payerAddress         String?           @db.VarChar(500)
+  payerPhone           String?           @db.VarChar(40)
+  /// Next check number to be issued. Updated atomically when checks are allocated.
+  nextCheckNumber      Int               @default(1001)
+  status               BankAccountStatus @default(ACTIVE)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  templates    CheckTemplate[]
+  checks       Check[]
+  batches      CheckBatch[]
+
+  @@index([organizationId])
+  @@map("bank_accounts")
+}
+
+model CheckTemplate {
+  id             String   @id @default(cuid())
+  organizationId String
+  bankAccountId  String?
+  name           String   @db.VarChar(120)
+  description    String?  @db.VarChar(2000)
+  /// Monotonic version number — incremented on every update to support rollback & audit.
+  version        Int      @default(1)
+  isPublished    Boolean  @default(false)
+  archivedAt     DateTime?
+  /// Full template document (stock + objects + label fields) as JSON.
+  document       Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  createdById    String
+  updatedById    String
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bankAccount  BankAccount?     @relation(fields: [bankAccountId], references: [id])
+  checks       Check[]
+  batches      CheckBatch[]
+  versions     TemplateVersion[]
+
+  @@index([organizationId])
+  @@index([bankAccountId])
+  @@map("check_templates")
+}
+
+model TemplateVersion {
+  id         String   @id @default(cuid())
+  templateId String
+  version    Int
+  /// Frozen template document at this version.
+  document   Json
+  createdAt  DateTime @default(now())
+  createdById String
+
+  template CheckTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, version])
+  @@map("template_versions")
+}
+
+model CheckBatch {
+  id             String      @id @default(cuid())
+  organizationId String
+  bankAccountId  String
+  templateId     String
+  name           String      @db.VarChar(200)
+  count          Int
+  /// Idempotency key supplied by the API client; prevents duplicate batches.
+  idempotencyKey String      @db.VarChar(255)
+  status         BatchStatus @default(DRAFT)
+  /// Total amount of the batch in minor units (cents) for the currency.
+  totalAmountMinor BigInt
+  currency       String      @db.VarChar(3)
+  pdfStorageKey  String?     @db.VarChar(500)
+  /// SHA-256 of the rendered PDF — proves render integrity.
+  pdfChecksum    String?     @db.VarChar(64)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  errorMessage   String?     @db.VarChar(2000)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  createdById    String
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bankAccount  BankAccount   @relation(fields: [bankAccountId], references: [id])
+  template     CheckTemplate @relation(fields: [templateId], references: [id])
+  checks       Check[]
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([organizationId, status])
+  @@index([bankAccountId])
+  @@map("check_batches")
+}
+
+model Check {
+  id             String      @id @default(cuid())
+  organizationId String
+  bankAccountId  String
+  templateId     String
+  batchId        String?
+  /// Per-bank-account unique serial number.
+  serialNumber   Int
+  payeeName      String      @db.VarChar(200)
+  /// Amount in minor units (cents) of the check's currency.
+  amountMinor    BigInt
+  currency       String      @db.VarChar(3)
+  memo           String?     @db.VarChar(200)
+  issueDate      DateTime
+  /// Snapshot of all dynamic field values at print time.
+  fieldSnapshot  Json
+  status         CheckStatus @default(DRAFT)
+  pdfChecksum    String?     @db.VarChar(64)
+  voidedAt       DateTime?
+  voidedById     String?
+  voidReason     String?     @db.VarChar(500)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  createdById    String
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bankAccount  BankAccount   @relation(fields: [bankAccountId], references: [id])
+  template     CheckTemplate @relation(fields: [templateId], references: [id])
+  batch        CheckBatch?   @relation(fields: [batchId], references: [id])
+
+  @@unique([bankAccountId, serialNumber])
+  @@index([organizationId, status])
+  @@index([batchId])
+  @@map("checks")
+}
+
+model DataSource {
+  id             String         @id @default(cuid())
+  organizationId String
+  name           String         @db.VarChar(200)
+  kind           DataSourceKind
+  columns        Json
+  rows           Json
+  sourceFilename String?        @db.VarChar(255)
+  rowHash        String?        @db.VarChar(64)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  createdById    String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("data_sources")
+}
+
+model SignatureImage {
+  id             String   @id @default(cuid())
+  organizationId String
+  ownerName      String   @db.VarChar(200)
+  /// Storage key for the encrypted PNG/JPEG in object storage.
+  storageKey     String   @db.VarChar(500)
+  /// SHA-256 of the original image — proves no tampering.
+  sha256         String   @db.VarChar(64)
+  widthPx        Int
+  heightPx       Int
+  createdAt      DateTime @default(now())
+  createdById    String
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("signature_images")
+}
+
+model AuditLog {
+  id             String      @id @default(cuid())
+  organizationId String
+  userId         String?
+  action         AuditAction
+  /// Resource type as a string — e.g., "Check", "CheckBatch", "BankAccount".
+  resourceType   String      @db.VarChar(64)
+  resourceId     String?     @db.VarChar(64)
+  /// Free-form JSON metadata; never include secrets.
+  metadata       Json
+  ipAddress      String?     @db.VarChar(64)
+  userAgent      String?     @db.VarChar(500)
+  createdAt      DateTime    @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([resourceType, resourceId])
+  @@map("audit_logs")
+}

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/jwillz7667/Biz-Checks/blob/main/SECURITY.md
+    about: Please report security issues privately, not on the issue tracker.
+  - name: Contributing guide
+    url: https://github.com/jwillz7667/Biz-Checks/blob/main/CONTRIBUTING.md
+    about: Read this before opening a PR.

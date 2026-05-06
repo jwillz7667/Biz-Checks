@@ -1,0 +1,18 @@
+{
+  "extends": "@biz-checks/tsconfig/node.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noEmit": false,
+    "composite": false
+  },
+  "references": [
+    { "path": "../../packages/domain" },
+    { "path": "../../packages/micr" },
+    { "path": "../../packages/formula" },
+    { "path": "../../packages/check-engine" }
+  ],
+  "include": ["src/**/*", "prisma/seed.ts"]
+}

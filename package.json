@@ -1,0 +1,43 @@
+{
+  "name": "biz-checks",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Enterprise business check design and printing platform",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.10.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.12.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch --parallel",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "db:migrate": "pnpm --filter @biz-checks/api db:migrate",
+    "db:seed": "pnpm --filter @biz-checks/api db:seed",
+    "db:studio": "pnpm --filter @biz-checks/api db:studio",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": ["prettier --write"],
+    "*.{json,md,yaml,yml}": ["prettier --write"]
+  }
+}

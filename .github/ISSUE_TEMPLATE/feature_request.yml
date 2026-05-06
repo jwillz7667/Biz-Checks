@@ -1,0 +1,52 @@
+name: Feature request
+description: Suggest a new capability or enhancement.
+title: '[Feature]: '
+labels: ['enhancement', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. The more clearly you can describe the user
+        problem, the easier it is to design the right solution.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What user problem are you trying to solve?
+      description: Describe the actual workflow that's painful today.
+      placeholder: |
+        "When I try to print 500 checks at once, the system…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How might this work? Sketch the UX or API.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you weigh? Why didn't they work?
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Small (a few hours)
+        - Medium (a day or two)
+        - Large (a week+)
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Mockups, links to similar implementations elsewhere, prior discussion.
