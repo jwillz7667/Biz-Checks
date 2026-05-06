@@ -6,6 +6,8 @@
 
 import type { CanvasObject, CheckStock, LabelField, TemplateDocument } from '@/lib/api/types';
 
+import { canvasObjectId } from '@/lib/format';
+
 const POINTS_PER_INCH = 72;
 const inch = (n: number): number => n * POINTS_PER_INCH;
 
@@ -79,8 +81,9 @@ export const StockOptions: { id: StockId; label: string; description: string }[]
   },
 ];
 
-let blueprintCounter = 0;
-const id = (suffix: string): string => `obj_bp_${suffix}_${(++blueprintCounter).toString(36)}`;
+// API requires CanvasObject `id` to match `/^[a-z0-9]{20,32}$/i`. The suffix is
+// ignored at runtime (kept only for source-level readability).
+const id = (_suffix: string): string => canvasObjectId();
 
 /**
  * Canonical placement of objects on a US business check (ANSI X9.100).
@@ -452,7 +455,7 @@ export function buildBlankDocument(stockId: StockId): TemplateDocument {
  */
 function buildSecurityObjects(): CanvasObject[] {
   const out: CanvasObject[] = [];
-  const sid = (suffix: string): string => id(`sec_${suffix}`);
+  const sid = (_suffix: string): string => canvasObjectId();
 
   const microTopBottomText =
     'AUTHORIZED · ORIGINAL DOCUMENT · DO NOT COPY · ' +
