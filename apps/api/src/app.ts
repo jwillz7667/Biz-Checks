@@ -103,10 +103,12 @@ export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
     verify: { extractToken: (request) => extractBearer(request.headers.authorization) },
   });
 
+  // No `exposeStatusRoute` — under-pressure registers its status route with a
+  // JSON Schema response, which collides with our global Zod serializer
+  // compiler and 500s. Health endpoints below cover liveness/readiness.
   await app.register(underPressure, {
     maxEventLoopDelay: 1500,
     maxHeapUsedBytes: 1024 * 1024 * 1024,
-    exposeStatusRoute: { url: '/health/ready', routeOpts: {} },
     healthCheck: async () => true,
   });
 
@@ -123,9 +125,11 @@ export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
 
   app.setErrorHandler(errorHandler);
 
-  // Health
-  app.get('/health/live', () => ({ status: 'ok' }));
+  // Health — no response schema, so the global Zod serializer is bypassed
+  // and these routes serialize via the default JSON.stringify path.
   app.get('/health', () => ({ status: 'ok', service: 'biz-checks-api' }));
+  app.get('/health/live', () => ({ status: 'ok' }));
+  app.get('/health/ready', () => ({ status: 'ok' }));
 
   // Feature routes — feature-first, each owns its prefix and dependencies.
   await app.register(authRoutes, { prefix: '/api/v1/auth' });
