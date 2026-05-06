@@ -103,13 +103,12 @@ export async function buildApp(config: AppConfig): Promise<FastifyInstance> {
     verify: { extractToken: (request) => extractBearer(request.headers.authorization) },
   });
 
-  // No `exposeStatusRoute` — under-pressure registers its status route with a
-  // JSON Schema response, which collides with our global Zod serializer
-  // compiler and 500s. Health endpoints below cover liveness/readiness.
+  // No `exposeStatusRoute` / `healthCheck` — under-pressure's status route uses
+  // a JSON Schema response that collides with our global Zod serializer (500s
+  // on every request). Health is served by the plain handlers below.
   await app.register(underPressure, {
     maxEventLoopDelay: 1500,
     maxHeapUsedBytes: 1024 * 1024 * 1024,
-    healthCheck: async () => true,
   });
 
   // Infrastructure plugins
