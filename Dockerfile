@@ -79,12 +79,18 @@ COPY --from=builder /app/packages/micr/dist ./packages/micr/dist
 # which we don't filter into.
 RUN pnpm install --frozen-lockfile --prod=false --filter @biz-checks/api...
 
-# Run as non-root.
+# Run as non-root with a real $HOME so corepack/npm caches have a writable
+# location. Without this, HOME defaults to /nonexistent and any node
+# tooling that touches `~/.cache` (corepack, npm, etc.) fails with EACCES.
 RUN addgroup --system --gid 1001 app \
-  && adduser --system --uid 1001 --ingroup app app \
-  && chown -R app:app /app
+  && adduser --system --uid 1001 --ingroup app --home /home/app --shell /bin/sh app \
+  && mkdir -p /home/app \
+  && chown -R app:app /home/app /app
 USER app
+ENV HOME=/home/app
 
 # Railway injects PORT — leave EXPOSE out so we don't lie about the port.
+# Resolve prisma directly via node + workspace bin (avoids spawning corepack
+# at every startup, which is slow and fragile in slim images).
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "cd apps/api && pnpm exec prisma migrate deploy && node dist/server.js"]
+CMD ["sh", "-c", "cd apps/api && ./node_modules/.bin/prisma migrate deploy && node dist/server.js"]
