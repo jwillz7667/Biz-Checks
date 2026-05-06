@@ -74,4 +74,4 @@ USER app
 EXPOSE 4000
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["sh", "-c", "cd apps/api && npx prisma migrate deploy && node dist/server.js"]
+CMD ["sh", "-c", "cd apps/api && npx prisma migrate deploy && node dist/src/server.js"]
