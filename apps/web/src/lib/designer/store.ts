@@ -35,26 +35,29 @@ export interface DesignerState {
   /** Last persisted snapshot used to compute `isDirty`. */
   savedSnapshot: string | null;
 
-  hydrate(document: TemplateDocument): void;
-  markSaved(): void;
+  // Property-syntax (not method-shorthand) so destructured selectors don't
+  // trigger `@typescript-eslint/unbound-method`. Zustand actions are pure
+  // functions, not bound methods.
+  hydrate: (document: TemplateDocument) => void;
+  markSaved: () => void;
 
-  setZoom(zoom: number): void;
-  toggleSnap(): void;
-  setSnap(snap: boolean): void;
-  setGridSize(size: number): void;
-  toggleGuides(): void;
+  setZoom: (zoom: number) => void;
+  toggleSnap: () => void;
+  setSnap: (snap: boolean) => void;
+  setGridSize: (size: number) => void;
+  toggleGuides: () => void;
 
-  selectObject(id: string | null): void;
+  selectObject: (id: string | null) => void;
 
-  addObject(kind: CanvasObjectKind): void;
-  updateObject(id: string, patch: (obj: CanvasObject) => CanvasObject): void;
-  deleteObject(id: string): void;
-  duplicateObject(id: string): void;
-  moveZ(id: string, direction: 'up' | 'down' | 'top' | 'bottom'): void;
+  addObject: (kind: CanvasObjectKind) => void;
+  updateObject: (id: string, patch: (obj: CanvasObject) => CanvasObject) => void;
+  deleteObject: (id: string) => void;
+  duplicateObject: (id: string) => void;
+  moveZ: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
 
-  setBackground(color: string): void;
-  upsertLabelField(field: LabelField, originalName?: string): void;
-  removeLabelField(name: string): void;
+  setBackground: (color: string) => void;
+  upsertLabelField: (field: LabelField, originalName?: string) => void;
+  removeLabelField: (name: string) => void;
 }
 
 function snapshot(doc: TemplateDocument | null): string | null {

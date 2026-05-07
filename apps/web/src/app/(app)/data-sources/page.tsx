@@ -191,9 +191,12 @@ function ImportCSVForm({
         />
 
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">CSV file</label>
+          <label htmlFor="ds-csv-file" className="mb-1 block text-xs font-medium text-gray-700">
+            CSV file
+          </label>
           <div className="flex items-center gap-3">
             <input
+              id="ds-csv-file"
               ref={fileRef}
               type="file"
               accept=".csv,text/csv"
