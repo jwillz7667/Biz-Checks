@@ -29,12 +29,12 @@
     "prepare": "husky || true"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2",
+    "@types/node": "^25.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
     "prettier": "^3.4.2",
     "turbo": "^2.3.3",
-    "typescript": "^5.7.2"
+    "typescript": "^6.0.3"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": ["prettier --write"],
