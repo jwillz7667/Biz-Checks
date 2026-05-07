@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Printer, Upload } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -17,6 +17,7 @@ import type {
   TemplateDTO,
 } from '@/lib/api/types';
 
+import { BatchesPrinter } from '@/components/illustrations';
 import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
@@ -113,7 +114,7 @@ export default function BatchesPage(): React.JSX.Element {
             </table>
           ) : (
             <Empty
-              icon={<Printer className="size-8" />}
+              illustration={<BatchesPrinter />}
               title="No batches yet"
               description="Pick a published template and a bank account, then add rows or import a CSV."
               action={

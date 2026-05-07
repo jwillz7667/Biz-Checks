@@ -1,10 +1,11 @@
 'use client';
 
-import { Database, Plus, Upload, X } from 'lucide-react';
+import { Plus, Upload, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import type { DataSourceDTO, ImportCSVInput, PaginatedDTO } from '@/lib/api/types';
 
+import { DataSourcesSpreadsheet } from '@/components/illustrations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
@@ -97,7 +98,7 @@ export default function DataSourcesPage(): React.JSX.Element {
             </table>
           ) : (
             <Empty
-              icon={<Database className="size-8" />}
+              illustration={<DataSourcesSpreadsheet />}
               title="No data sources yet"
               description="Import a CSV with columns like Payee, Amount, Memo to drive batch printing."
               action={

@@ -10,6 +10,7 @@ import type {
   ImageObject,
   LabelField,
   MICRObject,
+  SecurityPattern,
   ShapeObject,
   SignatureObject,
   TemplateDocument,
@@ -56,6 +57,7 @@ export interface DesignerState {
   moveZ: (id: string, direction: 'up' | 'down' | 'top' | 'bottom') => void;
 
   setBackground: (color: string) => void;
+  setSecurityPattern: (pattern: SecurityPattern) => void;
   upsertLabelField: (field: LabelField, originalName?: string) => void;
   removeLabelField: (name: string) => void;
 }
@@ -160,8 +162,11 @@ function defaultsForKind(kind: CanvasObjectKind, zIndex: number): CanvasObject {
         name: 'Signature',
         position: { x: inch(5.0), y: inch(2.5) },
         size: { width: inch(3.0), height: inch(0.5) },
-        signatureImageId: 'placeholder',
         fitMode: 'contain',
+        signerName: 'Authorized Signature',
+        fontFamily: 'caveat',
+        fontSize: 28,
+        color: '#1a1a2e',
       };
       return o;
     }
@@ -291,6 +296,13 @@ export const useDesignerStore = create<DesignerState>((set, get) => ({
     const doc = get().document;
     if (!doc) return;
     const next: TemplateDocument = { ...doc, background: color };
+    set({ document: next, isDirty: snapshot(next) !== get().savedSnapshot });
+  },
+
+  setSecurityPattern(pattern) {
+    const doc = get().document;
+    if (!doc) return;
+    const next: TemplateDocument = { ...doc, securityPattern: pattern };
     set({ document: next, isDirty: snapshot(next) !== get().savedSnapshot });
   },
 

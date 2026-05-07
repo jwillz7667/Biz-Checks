@@ -1,6 +1,6 @@
 'use client';
 
-import { FileText, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import type {
@@ -13,6 +13,7 @@ import type {
   TemplateDTO,
 } from '@/lib/api/types';
 
+import { ChecksStack } from '@/components/illustrations';
 import { Badge, type BadgeTone } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
@@ -100,7 +101,7 @@ export default function ChecksPage(): React.JSX.Element {
             </table>
           ) : (
             <Empty
-              icon={<FileText className="size-8" />}
+              illustration={<ChecksStack />}
               title="No checks yet"
               description="Create a one-off check or build a batch from a CSV."
               action={

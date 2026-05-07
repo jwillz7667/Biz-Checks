@@ -1,6 +1,6 @@
 'use client';
 
-import { Layers, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -12,6 +12,7 @@ import type {
   TemplateDTO,
 } from '@/lib/api/types';
 
+import { TemplatesBlueprint } from '@/components/illustrations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
@@ -103,7 +104,7 @@ export default function TemplatesPage(): React.JSX.Element {
             </ul>
           ) : (
             <Empty
-              icon={<Layers className="size-8" />}
+              illustration={<TemplatesBlueprint />}
               title="No templates yet"
               description="Start from a standard business-check blueprint or a blank canvas."
               action={

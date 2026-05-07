@@ -1,5 +1,6 @@
 'use client';
 
+import { generateGuilloche } from '@biz-checks/check-engine';
 import { type KonvaEventObject } from 'konva/lib/Node';
 import { useCallback, useMemo, useRef } from 'react';
 import { Group, Image as KonvaImage, Layer, Line, Rect, Stage, Text } from 'react-konva';
@@ -9,6 +10,7 @@ import useImage from 'use-image';
 import type {
   CanvasObject,
   Position,
+  SecurityPattern,
   ShapeObject,
   ImageObject,
   TemplateDocument,
@@ -96,6 +98,15 @@ export function DesignerCanvas({ width, height }: DesignerCanvasProps): React.JS
             cornerRadius={2}
             stroke="#d1d5db"
             strokeWidth={1}
+          />
+
+          <SecurityPatternPreview
+            pattern={document.securityPattern}
+            offsetX={offsetX}
+            offsetY={offsetY}
+            widthPt={stockSize.width}
+            heightPt={stockSize.height - document.stock.perforationBottom}
+            scale={scale}
           />
 
           {showGuides ? (
@@ -254,24 +265,52 @@ function ObjectBody({ object }: { object: CanvasObject }): React.JSX.Element {
       return <ShapeBody shape={object} />;
     case 'image':
       return <RemoteImage object={object} />;
-    case 'signature':
+    case 'signature': {
+      const signer = object.signerName?.trim();
+      const cssFamily = SIGNATURE_FONT_CSS[object.fontFamily];
       return (
         <>
-          <Rect width={width} height={height} fill="#f9fafb" stroke="#d1d5db" dash={[3, 3]} />
-          <Text
-            width={width}
-            height={height}
-            text="Signature"
-            fontFamily="Inter"
-            fontSize={11}
-            fill="#9ca3af"
-            align="center"
-            verticalAlign="middle"
+          {/* Signature baseline */}
+          <Line
+            points={[0, height * 0.85, width, height * 0.85]}
+            stroke="#9ca3af"
+            strokeWidth={0.6}
+            listening={false}
           />
+          {signer ? (
+            <Text
+              width={width}
+              height={height}
+              text={signer}
+              fontFamily={cssFamily}
+              fontSize={object.fontSize}
+              fill={object.color}
+              align="center"
+              verticalAlign="middle"
+            />
+          ) : (
+            <Text
+              width={width}
+              height={height}
+              text="Signature"
+              fontFamily="Inter"
+              fontSize={11}
+              fill="#9ca3af"
+              align="center"
+              verticalAlign="middle"
+            />
+          )}
         </>
       );
+    }
   }
 }
+
+const SIGNATURE_FONT_CSS: Record<'caveat' | 'sacramento' | 'great-vibes', string> = {
+  caveat: '"Caveat", cursive',
+  sacramento: '"Sacramento", cursive',
+  'great-vibes': '"Great Vibes", cursive',
+};
 
 function ShapeBody({ shape }: { shape: ShapeObject }): React.JSX.Element {
   const { width, height } = shape.size;
@@ -374,6 +413,72 @@ function GuideGrid({
     );
   }
   return <>{lines}</>;
+}
+
+function SecurityPatternPreview({
+  pattern,
+  offsetX,
+  offsetY,
+  widthPt,
+  heightPt,
+  scale,
+}: {
+  pattern: SecurityPattern;
+  offsetX: number;
+  offsetY: number;
+  widthPt: number;
+  heightPt: number;
+  scale: number;
+}): React.JSX.Element | null {
+  // Sample the curves once per parameter change. Konva's Line wants a
+  // plain number[]; the generator returns Float32Array so we copy into a
+  // typed-converted view with the per-point screen scaling baked in.
+  const curves = useMemo(() => {
+    if (pattern.kind !== 'guilloche') return null;
+    const raw = generateGuilloche({
+      width: widthPt,
+      height: heightPt,
+      complexity: pattern.complexity,
+      density: pattern.density,
+      curves: pattern.curves,
+      // Lower step count on the canvas — print needs 360, screen looks
+      // identical at ~180 and renders in a single frame.
+      steps: 180,
+      amplitude: pattern.amplitude,
+    });
+    return raw.map((c) => {
+      const out = new Array<number>(c.length);
+      for (let i = 0; i < c.length; i += 2) {
+        out[i] = offsetX + c[i]! * scale;
+        out[i + 1] = offsetY + c[i + 1]! * scale;
+      }
+      return out;
+    });
+  }, [
+    pattern,
+    widthPt,
+    heightPt,
+    scale,
+    offsetX,
+    offsetY,
+  ]);
+
+  if (pattern.kind !== 'guilloche' || !curves) return null;
+  return (
+    <>
+      {curves.map((points, idx) => (
+        <Line
+          key={`guilloche-${idx}`}
+          points={points}
+          stroke={pattern.color}
+          strokeWidth={pattern.lineWidth}
+          opacity={pattern.opacity}
+          listening={false}
+          lineCap="round"
+        />
+      ))}
+    </>
+  );
 }
 
 function mergeObject(

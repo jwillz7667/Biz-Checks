@@ -5,7 +5,9 @@ import type {
   CanvasObject,
   ImageObject,
   MICRObject,
+  SecurityPattern,
   ShapeObject,
+  SignatureObject,
   TextObject,
   ValueExpression,
 } from '@/lib/api/types';
@@ -20,6 +22,7 @@ export function PropertiesPanel(): React.JSX.Element {
   const selectedId = useDesignerStore((s) => s.selectedId);
   const updateObject = useDesignerStore((s) => s.updateObject);
   const setBackground = useDesignerStore((s) => s.setBackground);
+  const setSecurityPattern = useDesignerStore((s) => s.setSecurityPattern);
 
   if (!document) return <div className="p-4 text-sm text-gray-500">Loading…</div>;
 
@@ -41,30 +44,155 @@ export function PropertiesPanel(): React.JSX.Element {
             }
           />
         ) : (
-          <DocumentProperties background={document.background} setBackground={setBackground} />
+          <DocumentProperties
+            background={document.background}
+            setBackground={setBackground}
+            securityPattern={document.securityPattern}
+            setSecurityPattern={setSecurityPattern}
+          />
         )}
       </div>
     </div>
   );
 }
 
+const DEFAULT_GUILLOCHE: Extract<SecurityPattern, { kind: 'guilloche' }> = {
+  kind: 'guilloche',
+  color: '#3b82f6',
+  lineWidth: 0.4,
+  complexity: 7,
+  density: 13,
+  curves: 5,
+  amplitude: 0.35,
+  opacity: 0.25,
+};
+
 function DocumentProperties({
   background,
   setBackground,
+  securityPattern,
+  setSecurityPattern,
 }: {
   background: string;
   setBackground: (color: string) => void;
+  securityPattern: SecurityPattern;
+  setSecurityPattern: (p: SecurityPattern) => void;
 }): React.JSX.Element {
   return (
     <div className="space-y-4">
       <p className="text-xs text-gray-500">
         Select a layer to edit its properties. Or adjust the canvas defaults below.
       </p>
-      <PropField label="Background color">
-        <ColorInput value={background} onChange={setBackground} />
-      </PropField>
+      <Section title="Background">
+        <PropField label="Background color">
+          <ColorInput value={background} onChange={setBackground} />
+        </PropField>
+      </Section>
+      <Section title="Security pattern">
+        <PropField label="Style">
+          <select
+            value={securityPattern.kind}
+            onChange={(e) => {
+              const next = e.target.value as SecurityPattern['kind'];
+              if (next === securityPattern.kind) return;
+              setSecurityPattern(next === 'none' ? { kind: 'none' } : { ...DEFAULT_GUILLOCHE });
+            }}
+            className={selectCls}
+          >
+            <option value="none">None</option>
+            <option value="guilloche">Guilloche</option>
+          </select>
+        </PropField>
+        {securityPattern.kind === 'guilloche' ? (
+          <GuillocheControls pattern={securityPattern} onChange={setSecurityPattern} />
+        ) : (
+          <p className="text-[11px] text-gray-500">
+            Add a woven security pattern behind the check body to deter
+            photocopy and scan-based reproduction.
+          </p>
+        )}
+      </Section>
     </div>
   );
+}
+
+function GuillocheControls({
+  pattern,
+  onChange,
+}: {
+  pattern: Extract<SecurityPattern, { kind: 'guilloche' }>;
+  onChange: (p: SecurityPattern) => void;
+}): React.JSX.Element {
+  const patch = (p: Partial<typeof pattern>): void => onChange({ ...pattern, ...p });
+  return (
+    <>
+      <Row>
+        <PropField label="Color" mini>
+          <ColorInput value={pattern.color} onChange={(c) => patch({ color: c })} />
+        </PropField>
+        <PropField label="Opacity" mini>
+          <NumberInput
+            value={pattern.opacity}
+            onChange={(v) => patch({ opacity: clamp01(v) })}
+            step={0.05}
+          />
+        </PropField>
+      </Row>
+      <Row>
+        <PropField label="Line (pt)" mini>
+          <NumberInput
+            value={pattern.lineWidth}
+            onChange={(v) => patch({ lineWidth: clampMin(v, 0.05) })}
+            step={0.1}
+          />
+        </PropField>
+        <PropField label="Amplitude" mini>
+          <NumberInput
+            value={pattern.amplitude}
+            onChange={(v) => patch({ amplitude: clamp01(v) })}
+            step={0.05}
+          />
+        </PropField>
+      </Row>
+      <Row>
+        <PropField label="Complexity" mini>
+          <NumberInput
+            value={pattern.complexity}
+            onChange={(v) => patch({ complexity: clampInt(v, 1, 40) })}
+            step={1}
+          />
+        </PropField>
+        <PropField label="Density" mini>
+          <NumberInput
+            value={pattern.density}
+            onChange={(v) => patch({ density: clampInt(v, 1, 40) })}
+            step={1}
+          />
+        </PropField>
+      </Row>
+      <PropField label="Curves">
+        <NumberInput
+          value={pattern.curves}
+          onChange={(v) => patch({ curves: clampInt(v, 1, 16) })}
+          step={1}
+        />
+      </PropField>
+      <p className="text-[11px] text-gray-500">
+        Coprime values for complexity and density (try 7 / 13) produce the
+        most pleasing weave.
+      </p>
+    </>
+  );
+}
+
+function clamp01(v: number): number {
+  return Math.max(0, Math.min(1, v));
+}
+function clampMin(v: number, min: number): number {
+  return Math.max(min, v);
+}
+function clampInt(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, Math.round(v)));
 }
 
 function ObjectProperties({
@@ -159,6 +287,7 @@ function ObjectProperties({
       {object.kind === 'amount-box' ? <AmountProps object={object} onChange={onChange} /> : null}
       {object.kind === 'shape' ? <ShapeProps object={object} onChange={onChange} /> : null}
       {object.kind === 'image' ? <ImageProps object={object} onChange={onChange} /> : null}
+      {object.kind === 'signature' ? <SignatureProps object={object} onChange={onChange} /> : null}
     </div>
   );
 }
@@ -513,6 +642,57 @@ function ImageProps({
           <option value="stretch">Stretch</option>
         </select>
       </PropField>
+    </Section>
+  );
+}
+
+function SignatureProps({
+  object,
+  onChange,
+}: {
+  object: SignatureObject;
+  onChange: (patch: Partial<CanvasObject>) => void;
+}): React.JSX.Element {
+  return (
+    <Section title="Signature">
+      <PropField label="Signer name">
+        <input
+          type="text"
+          value={object.signerName ?? ''}
+          onChange={(e) => onChange({ signerName: e.target.value })}
+          placeholder="Authorized Signature"
+          className={inputCls}
+        />
+      </PropField>
+      <Row>
+        <PropField label="Font" mini>
+          <select
+            value={object.fontFamily}
+            onChange={(e) =>
+              onChange({ fontFamily: e.target.value as SignatureObject['fontFamily'] })
+            }
+            className={selectCls}
+          >
+            <option value="caveat">Caveat</option>
+            <option value="sacramento">Sacramento</option>
+            <option value="great-vibes">Great Vibes</option>
+          </select>
+        </PropField>
+        <PropField label="Size (pt)" mini>
+          <NumberInput
+            value={object.fontSize}
+            onChange={(v) => onChange({ fontSize: v })}
+            step={0.5}
+          />
+        </PropField>
+      </Row>
+      <PropField label="Color">
+        <ColorInput value={object.color} onChange={(c) => onChange({ color: c })} />
+      </PropField>
+      <p className="text-[11px] text-gray-500">
+        Leave the signer name blank to render only the signature line. Image-based
+        signatures are managed in the signature vault (coming soon).
+      </p>
     </Section>
   );
 }

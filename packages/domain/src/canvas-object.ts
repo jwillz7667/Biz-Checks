@@ -15,6 +15,9 @@ export type MICRFontVariant = (typeof MICRFontVariant)[number];
 export const SecurityFont = ['none', 'amount-protect', 'condensed-amount'] as const;
 export type SecurityFont = (typeof SecurityFont)[number];
 
+export const SignatureFont = ['caveat', 'sacramento', 'great-vibes'] as const;
+export type SignatureFont = (typeof SignatureFont)[number];
+
 const Color = z
   .string()
   .regex(/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/, 'Color must be #RRGGBB or #RRGGBBAA');
@@ -71,8 +74,16 @@ export type MICRObject = z.infer<typeof MICRObjectSchema>;
 
 export const SignatureObjectSchema = BaseObject.extend({
   kind: z.literal('signature'),
-  signatureImageId: z.string().min(1),
+  // Either render an uploaded signature image (image id is opaque to the
+  // renderer; the image bytes are resolved by the print service from the
+  // signature vault) or render the printed `signerName` in a script font.
+  // If both are present, the image wins.
+  signatureImageId: z.string().min(1).optional(),
   fitMode: z.enum(['contain', 'cover', 'stretch']).default('contain'),
+  signerName: z.string().max(120).optional(),
+  fontFamily: z.enum(SignatureFont).default('caveat'),
+  fontSize: z.number().positive().max(200).default(28),
+  color: Color.default('#1a1a2e'),
 });
 export type SignatureObject = z.infer<typeof SignatureObjectSchema>;
 

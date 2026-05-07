@@ -1,4 +1,4 @@
-import { CanvasObjectSchema, CheckStockSchema, LabelFieldSchema } from '@biz-checks/domain';
+import { CanvasObjectSchema, CheckStockSchema, LabelFieldSchema, SecurityPatternSchema } from '@biz-checks/domain';
 import { z } from 'zod';
 
 export const TemplateDocumentSchema = z.object({
@@ -6,6 +6,7 @@ export const TemplateDocumentSchema = z.object({
   objects: z.array(CanvasObjectSchema).max(200),
   labelFields: z.array(LabelFieldSchema).max(64).default([]),
   background: z.string().default('#ffffff'),
+  securityPattern: SecurityPatternSchema.default({ kind: 'none' }),
 });
 export type TemplateDocument = z.infer<typeof TemplateDocumentSchema>;
 

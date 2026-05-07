@@ -7,6 +7,7 @@ import {
   OrganizationIdSchema,
   UserIdSchema,
 } from './ids.js';
+import { SecurityPatternSchema } from './security-pattern.js';
 import { MarginsSchema, PaperSizeSchema, SizeSchema } from './units.js';
 
 export const CheckStockType = [
@@ -77,5 +78,7 @@ export const CheckTemplateSchema = z.object({
   labelFields: z.array(LabelFieldSchema).max(64).default([]),
   /** Background color of the canvas in the designer (white check stock by default). */
   background: z.string().default('#ffffff'),
+  /** Optional security background drawn under all canvas objects. */
+  securityPattern: SecurityPatternSchema.default({ kind: 'none' }),
 });
 export type CheckTemplate = z.infer<typeof CheckTemplateSchema>;

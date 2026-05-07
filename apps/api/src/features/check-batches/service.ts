@@ -187,6 +187,7 @@ export class CheckBatchService {
             objects: advanced.template.objects,
             labelFields: [...advanced.template.labelFields],
             background: document.background,
+            securityPattern: document.securityPattern,
           };
           await tx.checkTemplate.update({
             where: { id: templateRow.id },
@@ -488,6 +489,7 @@ function buildCheckTemplate(
     objects: doc.objects,
     labelFields: doc.labelFields,
     background: doc.background,
+    securityPattern: doc.securityPattern,
   } as unknown as CheckTemplate;
 }
 

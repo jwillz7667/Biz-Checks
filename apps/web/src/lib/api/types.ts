@@ -107,6 +107,7 @@ export type TextJustification = 'left' | 'center' | 'right';
 export type FontWeight = 'regular' | 'medium' | 'semibold' | 'bold';
 export type MICRFontVariant = 'e13b' | 'cmc7';
 export type SecurityFont = 'none' | 'amount-protect' | 'condensed-amount';
+export type SignatureFont = 'caveat' | 'sacramento' | 'great-vibes';
 export type ShapeKind = 'line' | 'rectangle' | 'ellipse';
 
 export type ValueExpression =
@@ -151,8 +152,12 @@ export interface MICRObject extends BaseCanvasObject {
 
 export interface SignatureObject extends BaseCanvasObject {
   kind: 'signature';
-  signatureImageId: string;
+  signatureImageId?: string;
   fitMode: 'contain' | 'cover' | 'stretch';
+  signerName?: string;
+  fontFamily: SignatureFont;
+  fontSize: number;
+  color: string;
 }
 
 export interface ImageObject extends BaseCanvasObject {
@@ -200,11 +205,25 @@ export type LabelField =
   | { name: string; kind: 'constant'; value: string }
   | { name: string; kind: 'incrementing'; next: number; step: number; pad: number };
 
+export type SecurityPattern =
+  | { kind: 'none' }
+  | {
+      kind: 'guilloche';
+      color: string;
+      lineWidth: number;
+      complexity: number;
+      density: number;
+      curves: number;
+      amplitude: number;
+      opacity: number;
+    };
+
 export interface TemplateDocument {
   stock: CheckStock;
   objects: CanvasObject[];
   labelFields: LabelField[];
   background: string;
+  securityPattern: SecurityPattern;
 }
 
 export interface TemplateDTO {

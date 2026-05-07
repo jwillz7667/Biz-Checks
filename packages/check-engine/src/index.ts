@@ -5,3 +5,4 @@ export * from './snapshots.js';
 export * from './serial.js';
 export * from './templates/index.js';
 export * from './render-context.js';
+export * from './security/guilloche.js';

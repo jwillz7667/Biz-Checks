@@ -425,6 +425,7 @@ export function buildBlueprintDocument(stockId: StockId): TemplateDocument {
     objects: buildStandardObjects(),
     labelFields: DEFAULT_LABEL_FIELDS.map((f) => ({ ...f })),
     background: '#ffffff',
+    securityPattern: { kind: 'none' },
   };
 }
 
@@ -434,6 +435,7 @@ export function buildSecurityDocument(stockId: StockId): TemplateDocument {
     objects: buildSecurityObjects(),
     labelFields: DEFAULT_LABEL_FIELDS.map((f) => ({ ...f })),
     background: '#ffffff',
+    securityPattern: { kind: 'none' },
   };
 }
 
@@ -443,6 +445,7 @@ export function buildBlankDocument(stockId: StockId): TemplateDocument {
     objects: [],
     labelFields: DEFAULT_LABEL_FIELDS.map((f) => ({ ...f })),
     background: '#ffffff',
+    securityPattern: { kind: 'none' },
   };
 }
 

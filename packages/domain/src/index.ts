@@ -8,3 +8,4 @@ export * from './check.js';
 export * from './data-source.js';
 export * from './errors.js';
 export * from './result.js';
+export * from './security-pattern.js';

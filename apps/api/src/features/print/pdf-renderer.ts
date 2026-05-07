@@ -2,7 +2,13 @@ import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { checkRectAt, printableArea, resolveCheck } from '@biz-checks/check-engine';
+import {
+  checkRectAt,
+  curveToSvgPath,
+  generateGuilloche,
+  printableArea,
+  resolveCheck,
+} from '@biz-checks/check-engine';
 import {
   fromPoints,
   PaperSizes,
@@ -10,6 +16,8 @@ import {
   type CanvasObject,
   type CheckTemplate,
   type DataRow,
+  type SecurityPattern,
+  type SignatureFont,
 } from '@biz-checks/domain';
 import { encodeMICRLine } from '@biz-checks/micr';
 import fontkit from '@pdf-lib/fontkit';
@@ -72,6 +80,42 @@ async function loadMICRFontBytes(): Promise<Uint8Array | null> {
 }
 
 /**
+ * Signature script fonts. Each is a SIL Open Font Licensed family that can
+ * be embedded into PDFs without a per-document royalty. Filenames match the
+ * canonical Google Fonts release tarballs (`<Family>-Regular.ttf`).
+ *
+ * Resolution mirrors the MICR font: an env var override (`SIGNATURE_FONT_DIR`)
+ * wins, otherwise we look in the repo-root `fonts/` directory.
+ */
+const SIGNATURE_FONT_FILES: Record<SignatureFont, string> = {
+  caveat: 'Caveat-Regular.ttf',
+  sacramento: 'Sacramento-Regular.ttf',
+  'great-vibes': 'GreatVibes-Regular.ttf',
+};
+
+function signatureFontPath(font: SignatureFont): string {
+  const dir = process.env.SIGNATURE_FONT_DIR ?? resolve(__dirname, '../../../../../fonts');
+  return resolve(dir, SIGNATURE_FONT_FILES[font]);
+}
+
+const cachedSignatureBytes: Partial<Record<SignatureFont, Uint8Array | null>> = {};
+async function loadSignatureFontBytes(font: SignatureFont): Promise<Uint8Array | null> {
+  if (font in cachedSignatureBytes) return cachedSignatureBytes[font] ?? null;
+  try {
+    const bytes = await readFile(signatureFontPath(font));
+    cachedSignatureBytes[font] = bytes;
+    return bytes;
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT') {
+      cachedSignatureBytes[font] = null;
+      return null;
+    }
+    throw err;
+  }
+}
+
+/**
  * Render a multi-check batch to a PDF buffer. The result has one page per
  * sheet, with rows × columns checks per sheet according to the template's
  * stock. Coordinate system: pdf-lib uses bottom-up y; we convert from the
@@ -93,7 +137,21 @@ export async function renderBatchPDF(input: RenderBatchInput): Promise<Uint8Arra
   // readable by bank scanners.
   const micr = micrBytes ? await pdf.embedFont(micrBytes, { subset: true }) : courier;
 
-  const fonts = { helvetica, helveticaBold, helveticaOblique, courier, micr };
+  // Lazy-load signature fonts: only embed the families actually referenced
+  // by the template so empty deploys don't fail and small-template renders
+  // stay slim.
+  const requestedSignatureFonts = collectSignatureFonts(input.template);
+  const signature: Record<SignatureFont, PDFFont> = {
+    caveat: helveticaOblique,
+    sacramento: helveticaOblique,
+    'great-vibes': helveticaOblique,
+  };
+  for (const family of requestedSignatureFonts) {
+    const bytes = await loadSignatureFontBytes(family);
+    if (bytes) signature[family] = await pdf.embedFont(bytes, { subset: true });
+  }
+
+  const fonts = { helvetica, helveticaBold, helveticaOblique, courier, micr, signature };
 
   const stock = input.template.stock;
   const paper = PaperSizes[stock.paperSize];
@@ -128,6 +186,7 @@ export async function renderBatchPDF(input: RenderBatchInput): Promise<Uint8Arra
     });
 
     drawCheckBackground(page, rect, paper, printable);
+    drawSecurityPattern(page, input.template.securityPattern, rect, paper, printable);
     for (const r of resolved) {
       drawObject(page, r.object, r.resolvedText, rect, paper, fonts, rowData);
     }
@@ -143,6 +202,15 @@ interface FontSet {
   helveticaOblique: PDFFont;
   courier: PDFFont;
   micr: PDFFont;
+  signature: Record<SignatureFont, PDFFont>;
+}
+
+function collectSignatureFonts(template: CheckTemplate): readonly SignatureFont[] {
+  const set = new Set<SignatureFont>();
+  for (const obj of template.objects) {
+    if (obj.kind === 'signature' && obj.signerName) set.add(obj.fontFamily);
+  }
+  return [...set];
 }
 
 function drawCheckBackground(
@@ -165,6 +233,51 @@ function drawCheckBackground(
   });
 }
 
+/**
+ * Render an optional security background underneath all canvas objects.
+ * The generator emits coords in canvas (top-down) space relative to the
+ * printable area's top-left. pdf-lib's `drawSvgPath` takes care of the
+ * y-flip internally via `scale(1, -1)`, so we only need to anchor the SVG
+ * origin (0,0) at the printable area's top-left in pdf-lib (bottom-up)
+ * coords.
+ */
+function drawSecurityPattern(
+  page: PDFPage,
+  pattern: SecurityPattern,
+  checkRect: { x: number; y: number; width: number; height: number },
+  paper: { width: number; height: number },
+  printable: { width: number; height: number },
+): void {
+  if (pattern.kind !== 'guilloche') return;
+
+  // The printable area is anchored at the check's top edge (see
+  // `printableArea` — y: 0 relative to the check) so its top-left in
+  // pdf-lib coords is the check's top-left.
+  const originX = checkRect.x;
+  const originYPdf = paper.height - checkRect.y;
+
+  const curves = generateGuilloche({
+    width: printable.width,
+    height: printable.height,
+    complexity: pattern.complexity,
+    density: pattern.density,
+    curves: pattern.curves,
+    steps: 360,
+    amplitude: pattern.amplitude,
+  });
+
+  const color = hex(pattern.color);
+  for (const curve of curves) {
+    page.drawSvgPath(curveToSvgPath(curve), {
+      x: originX,
+      y: originYPdf,
+      borderColor: color,
+      borderWidth: pattern.lineWidth,
+      borderOpacity: pattern.opacity,
+    });
+  }
+}
+
 function drawObject(
   page: PDFPage,
   obj: CanvasObject,
@@ -184,9 +297,8 @@ function drawObject(
       drawShape(page, obj, absX, absY);
       return;
     case 'image':
-    case 'signature':
-      // Image embedding is delegated to a higher layer (signature service)
-      // for security. Here we draw a placeholder line so layout remains intact.
+      // Raster image embedding is delegated to a higher layer; here we
+      // draw a placeholder line so layout remains intact.
       page.drawLine({
         start: { x: absX, y: absY + obj.size.height / 2 },
         end: { x: absX + obj.size.width, y: absY + obj.size.height / 2 },
@@ -194,6 +306,28 @@ function drawObject(
         color: rgb(0.85, 0.85, 0.85),
       });
       return;
+    case 'signature': {
+      // Image-based signatures are still resolved by the signature service
+      // (out of scope here). For text-mode signatures we draw the signer
+      // name in the chosen script font. Always underline the baseline so
+      // the signature line remains visible even when no name is set.
+      page.drawLine({
+        start: { x: absX, y: absY + obj.size.height * 0.15 },
+        end: { x: absX + obj.size.width, y: absY + obj.size.height * 0.15 },
+        thickness: 0.5,
+        color: rgb(0.55, 0.55, 0.6),
+      });
+      if (obj.signerName && obj.signerName.trim().length > 0) {
+        const font = fonts.signature[obj.fontFamily];
+        drawText(page, obj.signerName, absX, absY, obj.size, {
+          font,
+          fontSize: obj.fontSize,
+          color: hex(obj.color),
+          justification: 'center',
+        });
+      }
+      return;
+    }
     case 'micr': {
       const renderedText = ensureMICR(text, rowData);
       drawText(page, renderedText, absX, absY, obj.size, {
