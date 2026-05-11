@@ -31,6 +31,6 @@
     "@biz-checks/tsconfig": "workspace:*",
     "@biz-checks/eslint-config": "workspace:*",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.6"
   }
 }
